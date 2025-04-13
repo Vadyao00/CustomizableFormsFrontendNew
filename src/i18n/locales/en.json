@@ -1,0 +1,207 @@
+{
+    "app": {
+      "title": "Customizable Forms",
+      "tagline": "Create and share custom forms for any purpose"
+    },
+    "nav": {
+      "home": "Home",
+      "templates": "Templates",
+      "myTemplates": "My Templates",
+      "myForms": "My Forms",
+      "admin": "Admin"
+    },
+    "auth": {
+      "login": "Login",
+      "register": "Register",
+      "logout": "Logout",
+      "email": "Email",
+      "password": "Password",
+      "name": "Name",
+      "confirmPassword": "Confirm Password",
+      "noAccount": "No account",
+      "alreadyHaveAccount": "Already have account",
+      "or": "or"
+    },
+    "templates": {
+      "popular": "Popular Templates",
+      "recent": "Recent Templates",
+      "create": "Create Template",
+      "edit": "Edit Template",
+      "delete": "Delete Template",
+      "title": "Title",
+      "description": "Description",
+      "topic": "Topic",
+      "isPublic": "Public",
+      "tags": "Tags",
+      "allowedUsers": "Allowed Users",
+      "questions": "Questions",
+      "results": "Results",
+      "settings": "Settings",
+      "comments": "Comments",
+      "forms": "Forms",
+      "noTemplates": "No templates available",
+      "fetchError": "Error fetching template data",
+      "imageUrl": "Image url",
+      "addTag": "Add tag",
+      "addUser": "Add user",
+      "createError": "Error while creating template",
+      "my": "My templates",
+      "all": "All templates",
+      "public": "Public templates",
+      "private": "Private templates",
+      "noPublicTemplates": "There are no public templates",
+      "noPrivateTemplates": "There are no private templates",
+      "createdAt": "Created at",
+      "deleteConfirm": "Confirm delete",
+      "deleteWarning": "Are you sure?",
+      "templates": "Templates",
+      "selectAll": "Select all",
+      "selected": "selected",
+      "save": "Save",
+      "notFound": "Template not found",
+      "updateError": "Error while updating template",
+      "summary": "Summary",
+      "totalResponses": "Total responses",
+      "settingsNotImplemented": "Templates not implemented"
+    },
+    "questions": {
+      "add": "Add Question",
+      "edit": "Edit Question",
+      "delete": "Delete Question",
+      "title": "Question",
+      "description": "Description",
+      "type": "Type",
+      "showInResults": "Show in Results",
+      "types": {
+        "singleLineString": "Single Line Text",
+        "multiLineText": "Multi Line Text",
+        "integer": "Number",
+        "checkbox": "Checkbox"
+      },
+      "empty": "Empty",
+      "hideInResults": "Hide in Results"
+    },
+    "forms": {
+      "submit": "Submit Form",
+      "edit": "Edit Form",
+      "delete": "Delete Form",
+      "submittedAt": "Submitted",
+      "noSubmittedForms": "No froms submitted",
+      "fetchError": "Error while fetching forms",
+      "my": "My forms",
+      "submittedByMe": "Submitted by me",
+      "submitError": "Error while submitting form",
+      "step": "Step",
+      "title": "Forms",
+      "empty": "Empty",
+      "cancelEdit": "Cancel edit",
+      "cancelEditWarning": "Are you sure?",
+      "submittedBy": "Submitted by",
+      "answers": "Answers",
+      "deleteConfirm": "Confirm delete",
+      "deleteWarning":"Are you sure?",
+      "updateError": "Error while updating form"
+    },
+    "comments": {
+      "add": "Add Comment",
+      "edit": "Edit Comment",
+      "delete": "Delete Comment",
+      "placeholder": "Write a comment...",
+      "toLeaveComment": "to leave comments"
+    },
+    "admin": {
+      "users": "Users",
+      "block": "Block",
+      "unblock": "Unblock",
+      "addAdmin": "Add Admin Role",
+      "removeAdmin": "Remove Admin Role",
+      "delete": "Delete User",
+      "title": "Users table",
+      "templates": "Admin templates",
+      "statistics": "Admin statistics",
+      "deleteUserConfirm": "Confirm delete",
+      "deleteUserWarning": "Are you sure?",
+      "fetchError": "Error while fetching users",
+      "roleError": "Error while changing role",
+      "selected": "selected",
+      "deleteError": "Error while deleting user"
+    },
+    "search": {
+      "placeholder": "Search templates...",
+      "noResults": "No results found",
+      "results": "Search Results",
+      "tryDifferentQuery": "Try another query",
+      "queryLabel": "Query",
+      "foundResults": "Found results"
+    },
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "view": "View",
+      "loading": "Loading...",
+      "error": "Error",
+      "success": "Success",
+      "confirm": "Confirm",
+      "yes": "Yes",
+      "no": "No",
+      "back": "Back",
+      "next": "Next",
+      "all": "All",
+      "sortBy": "SortBy",
+      "actions": "Actions",
+      "pressEnterToAdd": "Press Enter to add"
+    },
+    "topics": {
+      "education": "Education",
+      "business": "Business",
+      "feedback": "Feedback",
+      "quiz": "Quiz",
+      "survey": "Survey",
+      "other": "Other"
+    },
+    "sort": {
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "popular": "Popular",
+      "title": "Title"
+    },
+    "notFound": {
+      "title": "Not found",
+      "goHome": "Home"
+    },
+    "tags": {
+      "cloud": "Tags cloud",
+      "templates": "Templates",
+      "selectedTag": "Selected tag",
+      "noTemplates": "There are no templates for the given tag",
+      "tryDifferentTag": "Try another tag",
+      "foundTemplates": "Found templates"
+    },
+    "table": {
+      "rowsPerPage": "Rows per page"
+    },
+    "user": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "roles": "Roles",
+      "active": "Active",
+      "blocked": "Blocked"
+    },
+    "tooltip": {
+      "unlike": "Unlike",
+      "like": "Like",
+      "comments": "Comments",
+      "forms": "Forms"
+    },
+    "validation": {
+      "required": "This is required field"
+    },
+    "results": {
+      "average": "Average",
+      "min": "Min",
+      "max": "Max"
+    }
+  }
