@@ -73,8 +73,8 @@
       "type": "Type",
       "showInResults": "Show in Results",
       "types": {
-        "singleLineString": "Single Line Text",
-        "multiLineText": "Multi Line Text",
+        "singlelinestring": "Single Line Text",
+        "multilinetext": "Multi Line Text",
         "integer": "Number",
         "checkbox": "Checkbox"
       },
@@ -151,7 +151,8 @@
       "all": "All",
       "sortBy": "SortBy",
       "actions": "Actions",
-      "pressEnterToAdd": "Press Enter to add"
+      "pressEnterToAdd": "Press Enter to add",
+      "selected": "selected"
     },
     "topics": {
       "education": "Education",
@@ -188,7 +189,8 @@
       "status": "Status",
       "roles": "Roles",
       "active": "Active",
-      "blocked": "Blocked"
+      "blocked": "Blocked",
+      "submittedBy": "Submitted by"
     },
     "tooltip": {
       "unlike": "Unlike",

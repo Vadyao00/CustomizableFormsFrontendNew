@@ -73,8 +73,8 @@
       "type": "Тип",
       "showInResults": "Показывать в результатах",
       "types": {
-        "singleLineString": "Однострочный текст",
-        "multiLineText": "Многострочный текст",
+        "singlelinestring": "Однострочный текст",
+        "multilinetext": "Многострочный текст",
         "integer": "Число",
         "checkbox": "Флажок"
       },
@@ -151,7 +151,8 @@
       "all": "Все",
       "sortBy": "Сортировать",
       "actions": "Действия",
-      "pressEnterToAdd": "Нажмите Enter чтобы добавить"
+      "pressEnterToAdd": "Нажмите Enter чтобы добавить",
+      "selected": "выбрано"
     },
     "topics": {
       "education": "Образование",
@@ -188,7 +189,8 @@
       "status": "Статус",
       "roles": "Роли",
       "active": "Активный",
-      "blocked": "Заблокированный"
+      "blocked": "Заблокированный",
+      "submittedBy": "Пройден"
     },
     "tooltip": {
       "unlike": "Не нравится",

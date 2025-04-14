@@ -54,7 +54,7 @@ const FormSubmitPage: React.FC = () => {
         
         const initialAnswers: Record<string, string | number | boolean | null> = {};
         sortedQuestions.forEach(question => {
-          initialAnswers[question.id] = null;
+          initialAnswers[question.id] = question.type === 3 ? false : null;
         });
         setAnswers(initialAnswers);
         
@@ -229,14 +229,16 @@ const FormSubmitPage: React.FC = () => {
         ) : (
           <Card variant="outlined" sx={{ mb: 4 }}>
             <CardContent>
-              {currentQuestions.map((question) => (
-                <FormAnswerField
-                  key={question.id}
-                  question={question}
-                  value={answers[question.id]}
-                  onChange={handleAnswerChange}
-                  error={errors[question.id]}
-                />
+              {currentQuestions.map((question, index) => (
+                <Box key={question.id}>
+                  <FormAnswerField
+                    question={question}
+                    value={answers[question.id]}
+                    onChange={handleAnswerChange}
+                    error={errors[question.id]}
+                  />
+                  {index < currentQuestions.length - 1 && <Divider sx={{ my: 2 }} />}
+                </Box>
               ))}
             </CardContent>
           </Card>

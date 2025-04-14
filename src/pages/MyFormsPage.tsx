@@ -40,8 +40,6 @@ const MyFormsPage: React.FC = () => {
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [formToDelete, setFormToDelete] = useState<string | null>(null);
   const [tabValue, setTabValue] = useState(0);
   
   useEffect(() => {
@@ -66,26 +64,19 @@ const MyFormsPage: React.FC = () => {
     setTabValue(newValue);
   };
   
-  const handleDeleteClick = (formId: string) => {
-    setFormToDelete(formId);
-    setDeleteDialogOpen(true);
-  };
-  
-  const handleDeleteConfirm = async () => {
-    if (!formToDelete) return;
-    
+  const handleDeleteForm = async (formId: string): Promise<void> => {
     try {
-      await formsApi.deleteForm(formToDelete);
+      await formsApi.deleteForm(formId);
       
       setForms(prevForms => 
-        prevForms.filter(form => form.id !== formToDelete)
+        prevForms.filter(form => form.id !== formId)
       );
       
-      setDeleteDialogOpen(false);
-      setFormToDelete(null);
+      return Promise.resolve();
     } catch (err) {
       console.error('Error deleting form:', err);
       setError(t('forms.deleteError'));
+      return Promise.reject(err);
     }
   };
   
@@ -129,31 +120,11 @@ const MyFormsPage: React.FC = () => {
               forms={forms}
               showTemplateInfo
               showUserInfo={false}
-              onDeleteForm={handleDeleteClick}
+              onDeleteForm={handleDeleteForm}
             />
           )}
         </TabPanel>
       </Paper>
-      
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle>{t('forms.deleteConfirm')}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {t('forms.deleteWarning')}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>
-            {t('common.cancel')}
-          </Button>
-          <Button onClick={handleDeleteConfirm} color="error" autoFocus>
-            {t('common.delete')}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Container>
   );
 };
