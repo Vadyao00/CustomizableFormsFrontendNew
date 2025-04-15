@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
@@ -45,7 +46,14 @@ const LoginPage: React.FC = () => {
         navigate('/');
       } catch (err) {
         console.error('Login error:', err);
-        setError('Invalid email or password');
+        
+        if(axios.isAxiosError(err)){
+          setError(err.response?.data.message);
+        }
+        else{
+          setError("Invalid email or password")
+        }
+
       }
     },
   });

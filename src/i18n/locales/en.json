@@ -124,7 +124,8 @@
       "fetchError": "Error while fetching users",
       "roleError": "Error while changing role",
       "selected": "selected",
-      "deleteError": "Error while deleting user"
+      "deleteError": "Error while deleting user",
+      "blockError": "You cannot block yourself"
     },
     "search": {
       "placeholder": "Search templates...",

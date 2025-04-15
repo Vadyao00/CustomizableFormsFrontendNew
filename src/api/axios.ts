@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = 'https://localhost:7164/api';
 
@@ -53,6 +54,11 @@ api.interceptors.response.use(
       }
     }
     
+    if (error.response?.status === 403) {
+      window.location.href = '/login';
+      return;
+    }
+
     return Promise.reject(error);
   }
 );
