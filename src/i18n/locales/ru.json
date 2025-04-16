@@ -62,7 +62,11 @@
       "updateError": "Ошибка при изменении шаблона",
       "summary": "Краткая сводка",
       "totalResponses": "Количество ответов",
-      "settingsNotImplemented": "Настройки не реализованы"
+      "settingsNotImplemented": "Настройки не реализованы",
+      "imageTypeError": "Неверный формат файла. Допустимы png и jpeg",
+      "imageSizeError": "Неверный разер файла. Максимальный размер должен быть меньше 5 мб",
+      "noResponses": "Нет ответов",
+      "uploadImage": "Загрузить"
     },
     "questions": {
       "add": "Добавить вопрос",
@@ -75,6 +79,8 @@
       "types": {
         "singlelinestring": "Однострочный текст",
         "multilinetext": "Многострочный текст",
+        "singleLineString": "Однострочный текст",
+        "multiLineText": "Многострочный текст",
         "integer": "Число",
         "checkbox": "Флажок"
       },
@@ -179,7 +185,8 @@
       "selectedTag": "Выбранный тег",
       "noTemplates": "Нет шаблонов по заданному тегу",
       "tryDifferentTag": "Попробуйте другой тег",
-      "foundTemplates": "Найденные шаблоны"
+      "foundTemplates": "Найденные шаблоны",
+      "fetchError": "Ошибка загрузки шаблонов"
     },
     "table": {
       "rowsPerPage": "Пользователей на странице"

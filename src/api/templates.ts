@@ -78,3 +78,14 @@ export const reorderQuestions = (templateId: string, questionIds: string[]): Pro
     questionIds
   );
 };
+
+export const uploadImage = (file: File): Promise<{ imageUrl: string}> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  return api.post('/upload/image', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }).then(response => response.data);
+};

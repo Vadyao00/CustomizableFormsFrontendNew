@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Container,
   Typography,
@@ -14,7 +14,8 @@ import {
   CircularProgress,
   Autocomplete,
   Chip,
-  MenuItem
+  MenuItem,
+  LinearProgress
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +34,12 @@ const TemplateCreatePage: React.FC = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [allowedUsers, setAllowedUsers] = useState<string[]>([]);
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
+  
+  const [tagInputValue, setTagInputValue] = useState('');
+  const [userInputValue, setUserInputValue] = useState('');
+  
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const validationSchema = Yup.object({
     title: Yup.string()
@@ -75,6 +82,8 @@ const TemplateCreatePage: React.FC = () => {
   });
   
   const handleTagInputChange = async (event: React.SyntheticEvent, value: string) => {
+    setTagInputValue(value);
+    
     if (!value) return;
     
     try {
@@ -88,6 +97,7 @@ const TemplateCreatePage: React.FC = () => {
   const handleAddTag = (tag: string) => {
     if (!tag || tags.includes(tag)) return;
     setTags([...tags, tag]);
+    setTagInputValue('');
   };
   
   const handleRemoveTag = (tagToRemove: string) => {
@@ -97,10 +107,77 @@ const TemplateCreatePage: React.FC = () => {
   const handleAddAllowedUser = (email: string) => {
     if (!email || allowedUsers.includes(email)) return;
     setAllowedUsers([...allowedUsers, email]);
+    setUserInputValue('');
   };
   
   const handleRemoveAllowedUser = (emailToRemove: string) => {
     setAllowedUsers(allowedUsers.filter(email => email !== emailToRemove));
+  };
+  
+  const handleTagKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && tagInputValue) {
+      event.preventDefault();
+      handleAddTag(tagInputValue);
+    }
+  };
+  
+  const handleUserKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && userInputValue) {
+      event.preventDefault();
+      handleAddAllowedUser(userInputValue);
+    }
+  };
+  
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      setError(t('templates.imageTypeError'));
+      return;
+    }
+    
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError(t('templates.imageSizeError'));
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreviewImage(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await templatesApi.uploadImage(file);
+      formik.setFieldValue('imageUrl', response.imageUrl);
+      
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (err) {
+      console.error('Error while uploading image:', err);
+      setError(t('templates.imageUploadError'));
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleSelectFile = () => {
+    fileInputRef.current?.click();
+  };
+  
+  const handleRemoveImage = () => {
+    formik.setFieldValue('imageUrl', '');
+    setPreviewImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
   
   return (
@@ -110,7 +187,7 @@ const TemplateCreatePage: React.FC = () => {
       </Typography>
       
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
           {error}
         </Alert>
       )}
@@ -172,16 +249,71 @@ const TemplateCreatePage: React.FC = () => {
             </Grid>
             
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="imageUrl"
-                name="imageUrl"
-                label={t('templates.imageUrl')}
-                value={formik.values.imageUrl}
-                onChange={formik.handleChange}
-                error={formik.touched.imageUrl && Boolean(formik.errors.imageUrl)}
-                helperText={formik.touched.imageUrl && formik.errors.imageUrl}
+            <TextField
+              fullWidth
+              id="imageUrl"
+              name="imageUrl"
+              label={t('templates.imageUrl')}
+              value={formik.values.imageUrl}
+              onChange={formik.handleChange}
+              error={formik.touched.imageUrl && Boolean(formik.errors.imageUrl)}
+              helperText={formik.touched.imageUrl && formik.errors.imageUrl}
+              InputProps={{
+                readOnly: true,
+                endAdornment: (
+                  <Button
+                    variant="contained"
+                    onClick={handleSelectFile}
+                    disabled={loading}
+                    size="small"
+                    sx={{ ml: 1 }}
+                  >
+                    {loading ? t('common.loading') : (t('templates.uploadImage') || 'Загрузить')}
+                  </Button>
+                ),
+              }}
+            />
+              
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                style={{ display: 'none' }}
+                ref={fileInputRef}
+                onChange={handleFileChange}
               />
+              
+              {(formik.values.imageUrl || previewImage) && (
+                <Box mt={2} position="relative">
+                  <Box 
+                    component="img"
+                    src={previewImage || formik.values.imageUrl}
+                    alt="Предпросмотр"
+                    sx={{
+                      maxWidth: '100%',
+                      maxHeight: '200px',
+                      objectFit: 'contain',
+                      borderRadius: 1
+                    }}
+                  />
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    onClick={handleRemoveImage}
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      minWidth: 0,
+                      width: 30,
+                      height: 30,
+                      p: 0
+                    }}
+                  >
+                    ×
+                  </Button>
+                </Box>
+              )}
             </Grid>
             
             <Grid item xs={12}>
@@ -207,15 +339,22 @@ const TemplateCreatePage: React.FC = () => {
               <Autocomplete
                 freeSolo
                 options={tagSuggestions}
+                inputValue={tagInputValue}
                 onInputChange={handleTagInputChange}
                 renderInput={(params) => (
-                  <TextField {...params} label={t('templates.addTag')} fullWidth />
+                  <TextField 
+                    {...params} 
+                    label={t('templates.addTag')} 
+                    fullWidth 
+                    onKeyDown={handleTagKeyDown}
+                  />
                 )}
                 onChange={(_, value) => {
-                  if (typeof value === 'string') {
+                  if (typeof value === 'string' && value) {
                     handleAddTag(value);
                   }
                 }}
+                value={null}
               />
               
               <Box display="flex" flexWrap="wrap" gap={1} mt={2}>
@@ -239,14 +378,22 @@ const TemplateCreatePage: React.FC = () => {
                 <Autocomplete
                   freeSolo
                   options={[]}
+                  inputValue={userInputValue}
+                  onInputChange={(_, value) => setUserInputValue(value)}
                   renderInput={(params) => (
-                    <TextField {...params} label={t('templates.addUser')} fullWidth />
+                    <TextField 
+                      {...params} 
+                      label={t('templates.addUser')} 
+                      fullWidth 
+                      onKeyDown={handleUserKeyDown}
+                    />
                   )}
                   onChange={(_, value) => {
-                    if (typeof value === 'string') {
+                    if (typeof value === 'string' && value) {
                       handleAddAllowedUser(value);
                     }
                   }}
+                  value={null}
                 />
                 
                 <Box display="flex" flexWrap="wrap" gap={1} mt={2}>

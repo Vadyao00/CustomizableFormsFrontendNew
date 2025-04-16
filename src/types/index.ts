@@ -20,6 +20,7 @@ export interface User {
     commentsCount: number;
     formsCount: number;
     tags: string[];
+    allowedUsers: string[];
   }
 
   export enum QuestionType {

@@ -50,9 +50,9 @@ const QuestionEditForm: React.FC<QuestionEditFormProps> = ({
   const getQuestionTypeLabel = (type: QuestionType) => {
     switch (type) {
       case QuestionType.SingleLineString:
-        return t('questions.types.singleLineString');
+        return t('questions.types.singlelinestring');
       case QuestionType.MultiLineText:
-        return t('questions.types.multiLineText');
+        return t('questions.types.multilinetext');
       case QuestionType.Integer:
         return t('questions.types.integer');
       case QuestionType.Checkbox:

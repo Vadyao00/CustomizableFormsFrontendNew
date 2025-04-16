@@ -32,7 +32,6 @@ import { Template, Question, QuestionType, Form } from '../types';
 import * as templatesApi from '../api/templates';
 import * as formsApi from '../api/forms';
 import { useAuth } from '../contexts/AuthContext';
-import QuestionList from '../components/questions/QuestionList';
 import CommentSection from '../components/comments/CommentSection';
 import FormList from '../components/forms/FormList';
 import TemplateResultsView from '../components/templates/TemplateResultsView';

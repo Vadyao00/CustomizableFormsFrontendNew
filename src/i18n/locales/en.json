@@ -62,7 +62,11 @@
       "updateError": "Error while updating template",
       "summary": "Summary",
       "totalResponses": "Total responses",
-      "settingsNotImplemented": "Templates not implemented"
+      "settingsNotImplemented": "Templates not implemented",
+      "imageTypeError": "Invalid file. Acceptable format is png and jpeg",
+      "imageSizeError": "Invalid image size. Max size is 5 MB",
+      "noResponses": "No results",
+      "uploadImage": "Upload"
     },
     "questions": {
       "add": "Add Question",
@@ -75,6 +79,8 @@
       "types": {
         "singlelinestring": "Single Line Text",
         "multilinetext": "Multi Line Text",
+        "singleLineString": "Single Line Text",
+        "multiLineText": "Multi Line Text",
         "integer": "Number",
         "checkbox": "Checkbox"
       },
@@ -179,7 +185,8 @@
       "selectedTag": "Selected tag",
       "noTemplates": "There are no templates for the given tag",
       "tryDifferentTag": "Try another tag",
-      "foundTemplates": "Found templates"
+      "foundTemplates": "Found templates",
+      "fetchError": "Error fetching templates"
     },
     "table": {
       "rowsPerPage": "Rows per page"
