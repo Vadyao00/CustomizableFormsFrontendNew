@@ -13,6 +13,7 @@ import {
   Alert,
   Avatar,
   IconButton,
+  Tooltip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -211,7 +212,8 @@ const TemplateDetailsPage: React.FC = () => {
             <Box display="flex" alignItems="center" gap={1} mb={2}>
               <Chip label={template.topic} color="primary" />
               
-              {template.tags.map(tag => (
+              {/* Ограничиваем количество отображаемых тегов */}
+              {template.tags.slice(0, 3).map(tag => (
                 <Chip
                   key={tag}
                   label={tag}
@@ -219,6 +221,21 @@ const TemplateDetailsPage: React.FC = () => {
                   onClick={() => navigate(`/tags/${tag}/templates`)}
                 />
               ))}
+              
+              {/* Если тегов больше 3, показываем чип с количеством оставшихся */}
+              {template.tags.length > 3 && (
+                <Tooltip title={template.tags.slice(3).join(', ')}>
+                  <Chip
+                    label={`+${template.tags.length - 3}`}
+                    variant="outlined"
+                    color="default"
+                    onClick={() => {
+                      // Можно добавить логику для открытия модального окна со всеми тегами
+                      // или другой способ отображения полного списка тегов
+                    }}
+                  />
+                </Tooltip>
+              )}
               
               <Chip
                 label={template.isPublic ? t('templates.public') : t('templates.private')}
@@ -318,7 +335,6 @@ const TemplateDetailsPage: React.FC = () => {
           <Tab label={t('questions.title')} />
           {canEditTemplate() && <Tab label={t('templates.results')} />}
           {canEditTemplate() && <Tab label={t('forms.title')} />}
-          {canEditTemplate() && <Tab label={t('templates.settings')} />}
         </Tabs>
         
         <Box sx={{ p: 3 }}>
@@ -378,14 +394,6 @@ const TemplateDetailsPage: React.FC = () => {
                   showTemplateInfo={false}
                 />
               )}
-            </TabPanel>
-          )}
-          
-          {canEditTemplate() && (
-            <TabPanel value={tabValue} index={3}>
-              <Typography>
-                {t('templates.settingsNotImplemented')}
-              </Typography>
             </TabPanel>
           )}
         </Box>
