@@ -85,7 +85,8 @@
         "checkbox": "Checkbox"
       },
       "empty": "Empty",
-      "hideInResults": "Hide in Results"
+      "hideInResults": "Hide in Results",
+      "typeCannotBeChanged": "Type cannot be changed"
     },
     "forms": {
       "submit": "Submit Form",
@@ -212,6 +213,9 @@
     "results": {
       "average": "Average",
       "min": "Min",
-      "max": "Max"
+      "max": "Max",
+      "mostCommonValues": "Most common values",
+      "occurrences": "Occurrences",
+      "noData": "No data"
     }
   }

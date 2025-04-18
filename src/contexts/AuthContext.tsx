@@ -68,11 +68,11 @@ const getUserFromToken = (token?: string): { user: User | null, roles: string[] 
       ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] 
       : [decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || ''];
 
-      const user: User = {
-        id: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ?? "",
-        name: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
-        email: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
-        roles
+    const user: User = {
+      id: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ?? "",
+      name: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+      email: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
+      roles
     };
 
     return { user, roles };
@@ -85,6 +85,8 @@ const getUserFromToken = (token?: string): { user: User | null, roles: string[] 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [authState, setAuthState] = useState<AuthState>(defaultAuthState);
   const [isMounted, setIsMounted] = useState(false);
+  
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -92,12 +94,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const refreshAuthToken = async (): Promise<string> => {
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        const checkInterval = setInterval(() => {
+          if (!isRefreshing) {
+            clearInterval(checkInterval);
+            const currentToken = getAccessToken();
+            if (currentToken) {
+              resolve(currentToken);
+            } else {
+              reject(new Error('No token available after refresh'));
+            }
+          }
+        }, 100);
+      });
+    }
+
     try {
+      setIsRefreshing(true);
       const refreshToken = getRefreshToken();
       const accessToken = getAccessToken();
       if (!refreshToken || !accessToken) throw new Error('No tokens available');
       
-      const tokens = await authApi.refreshToken({accessToken,refreshToken});
+      const tokens = await authApi.refreshToken({accessToken, refreshToken});
       storeTokens(tokens);
       
       const { user, roles } = getUserFromToken(tokens.accessToken);
@@ -115,6 +134,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (isMounted) setAuthState(defaultAuthState);
       clearTokens();
       throw error;
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -123,24 +144,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const checkAuth = async () => {
       try {
-        let accessToken = getAccessToken();
+        const accessToken = getAccessToken();
         if (!accessToken) {
           setAuthState(defaultAuthState);
           return;
-        }
-
-        const decoded = jwtDecode<JwtPayload>(accessToken);
-        const currentTime = Date.now() / 1000;
-        const tokenExpired = decoded.exp < currentTime;
-
-        if (tokenExpired) {
-          try {
-            accessToken = await refreshAuthToken();
-          } catch (refreshError) {
-            console.error('Token refresh failed:', refreshError);
-            setAuthState(defaultAuthState);
-            return;
-          }
         }
 
         const { user, roles } = getUserFromToken(accessToken);
@@ -166,7 +173,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { user, roles } = getUserFromToken(tokens.accessToken);
       
       if (!user) {
-        console.error('Token after login:', tokens.accessToken);
         throw new Error('Authentication failed');
       }
 

@@ -85,7 +85,8 @@
         "checkbox": "Флажок"
       },
       "empty": "Пусто",
-      "hideInResults": "Скрывать в рузельтатах"
+      "hideInResults": "Скрывать в рузельтатах",
+      "typeCannotBeChanged": "Тип не может быть изменен"
     },
     "forms": {
       "submit": "Отправить форму",
@@ -212,6 +213,9 @@
     "results": {
       "average": "Средний",
       "min": "Минимальный",
-      "max": "Максимальный"
+      "max": "Максимальный",
+      "mostCommonValues": "Частые ответы",
+      "occurrences": "Количество",
+      "noData": "Нет данных"
     }
   }
