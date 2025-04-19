@@ -25,7 +25,6 @@ import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
 import * as signalR from './api/signalR';
-import { LikesProvider } from './contexts/LikesContext';
 
 const queryClient = new QueryClient();
 
@@ -42,7 +41,6 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter future={{ v7_startTransition: true }}>
         <AuthProvider>
-          <LikesProvider>
             <ThemeProvider>
               <LanguageProvider>
                 <CssBaseline />
@@ -126,7 +124,6 @@ const App: React.FC = () => {
                 </Routes>
               </LanguageProvider>
             </ThemeProvider>
-          </LikesProvider>
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>

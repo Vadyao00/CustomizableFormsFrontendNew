@@ -19,6 +19,8 @@ interface JwtPayload {
   "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": string | string[];
   exp: number;
   sub?: string;
+  PreferredLanguage?: string;
+  PreferredTheme?: string;
 }
 
 const defaultAuthState: AuthState = {
@@ -47,7 +49,21 @@ const clearTokens = () => {
   localStorage.removeItem("refreshToken");
 };
 
-const getUserFromToken = (token?: string): { user: User | null, roles: string[] } => {
+const isTokenExpired = (token: string | null): boolean => {
+  if (!token) return true;
+  
+  try {
+    const decoded = jwtDecode<JwtPayload>(token);
+    const currentTime = Date.now() / 1000;
+    
+    return decoded.exp < currentTime;
+  } catch (error) {
+    console.error('Token validation error:', error);
+    return true;
+  }
+};
+
+const getUserFromToken = (token?: string): { user: User | null, roles: string[], preferredLanguage?: string, preferredTheme?: string } => {
   try {
     const accessToken = token || getAccessToken();
     if (!accessToken) return { user: null, roles: [] };
@@ -58,10 +74,6 @@ const getUserFromToken = (token?: string): { user: User | null, roles: string[] 
     if (decoded.exp < currentTime) {
       console.warn('Token expired');
       return { user: null, roles: [] };
-    }
-
-    if (!decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]) {
-      throw new Error('Invalid token structure');
     }
 
     const roles = Array.isArray(decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]) 
@@ -75,7 +87,10 @@ const getUserFromToken = (token?: string): { user: User | null, roles: string[] 
       roles
     };
 
-    return { user, roles };
+    const preferredLanguage = decoded["PreferredLanguage"];
+    const preferredTheme = decoded["PreferredTheme"];
+
+    return { user, roles, preferredLanguage, preferredTheme };
   } catch (error) {
     console.error('Token decoding error:', error);
     return { user: null, roles: [] };
@@ -85,12 +100,33 @@ const getUserFromToken = (token?: string): { user: User | null, roles: string[] 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [authState, setAuthState] = useState<AuthState>(defaultAuthState);
   const [isMounted, setIsMounted] = useState(false);
-  
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    return () => setIsMounted(false);
+    
+    const checkTokensOnPageLoad = () => {
+      const accessToken = getAccessToken();
+      if (isTokenExpired(accessToken)) {
+        console.log('Found expired tokens on page load, clearing them');
+        clearTokens();
+      }
+    };
+    
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkTokensOnPageLoad();
+      }
+    };
+    
+    checkTokensOnPageLoad();
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      setIsMounted(false);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const refreshAuthToken = async (): Promise<string> => {
@@ -145,6 +181,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const checkAuth = async () => {
       try {
         const accessToken = getAccessToken();
+        
+        if (isTokenExpired(accessToken)) {
+          clearTokens();
+          setAuthState(defaultAuthState);
+          return;
+        }
+        
         if (!accessToken) {
           setAuthState(defaultAuthState);
           return;
@@ -154,10 +197,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (user) {
           setAuthState({ isAuthenticated: true, user, roles });
         } else {
+          clearTokens();
           setAuthState(defaultAuthState);
         }
       } catch (error) {
         console.error('Auth check error:', error);
+        clearTokens();
         setAuthState(defaultAuthState);
       }
     };
@@ -170,12 +215,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const tokens = await authApi.login({ email, password });
       storeTokens(tokens);
       
-      const { user, roles } = getUserFromToken(tokens.accessToken);
+      const { user, roles, preferredLanguage, preferredTheme } = getUserFromToken(tokens.accessToken);
       
       if (!user) {
         throw new Error('Authentication failed');
       }
-
+  
+      if (preferredLanguage) {
+        localStorage.setItem('language', preferredLanguage);
+      }
+      if (preferredTheme) {
+        localStorage.setItem('theme', preferredTheme);
+      }
+  
       if (isMounted) {
         setAuthState({
           isAuthenticated: true,

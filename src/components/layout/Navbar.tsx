@@ -37,6 +37,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { styled } from '@mui/material/styles';
 import { alpha } from '@mui/material/styles';
+import { updateUser } from '../../api/admin';
+import { UserPreferencesDto } from '../../types';
 
 const SearchWrapper = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -97,7 +99,20 @@ const Navbar: React.FC = () => {
     setAnchorEl(null);
   };
   
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const savedTheme = localStorage.getItem('theme') ?? '';
+    const savedLanguage = localStorage.getItem('language') ?? '';
+
+    const userPreferences: UserPreferencesDto = {
+      prefLang: savedLanguage,
+      prefTheme: savedTheme,
+    };
+    try {
+      await updateUser(userPreferences);
+    } catch (error) {
+      console.error('Error while updating user:', error);
+    }
+
     logout();
     handleMenuClose();
     navigate('/');

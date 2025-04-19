@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import i18n from '../i18n';
+import { useAuth } from './AuthContext';
 
 type Language = 'en' | 'ru';
 
@@ -12,6 +13,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('en');
+  const { authState } = useAuth();
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language') as Language;
@@ -19,7 +21,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setLanguage(savedLanguage);
       i18n.changeLanguage(savedLanguage);
     }
-  }, []);
+  }, [authState.isAuthenticated]);
 
   const changeLanguage = (lang: Language) => {
     setLanguage(lang);

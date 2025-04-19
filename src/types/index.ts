@@ -186,3 +186,8 @@ export interface UserForRegistrationDto {
     accessToken: string;
     refreshToken: string;
   }
+
+  export interface UserPreferencesDto {
+    prefLang: string;
+    prefTheme: string;
+  }

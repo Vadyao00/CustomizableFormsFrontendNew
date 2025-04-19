@@ -135,24 +135,6 @@ class SignalRConnection {
     });
   }
   
-  public onUpdateLikes(callback: (likesCount: number, templateId: string) => void): void {
-    this.getConnection().then(conn => {
-      conn.off('UpdateLikes');
-      
-      conn.on('UpdateLikes', (likesCount: number) => {
-        if (this.activeGroups.size === 1) {
-          const templateId = Array.from(this.activeGroups)[0];
-          callback(likesCount, templateId);
-        } else if (this.activeGroups.size > 1) {
-          console.warn('Multiple active groups, cannot determine which template the likes update is for:', 
-            Array.from(this.activeGroups));
-        } else {
-          console.warn('No active groups found for likes update');
-        }
-      });
-    });
-  }
-  
   public removeAllListeners(): void {
     if (!this.connection) return;
     
@@ -221,9 +203,6 @@ export const onDeleteComment = (callback: (commentId: string) => void): void => 
   signalRInstance.onDeleteComment(callback);
 };
 
-export const onUpdateLikes = (callback: (likesCount: number, templateId: string) => void): void => {
-  signalRInstance.onUpdateLikes(callback);
-};
 export const removeAllListeners = (): void => {
   signalRInstance.removeAllListeners();
 };

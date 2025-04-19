@@ -1,5 +1,5 @@
 import api from './axios';
-import { User } from '../types';
+import { User, UserPreferencesDto } from '../types';
 
 const getAuthHeader = () => ({
   headers: {
@@ -47,6 +47,14 @@ export const removeAdminRole = (userId: string): Promise<void> => {
 export const deleteUser = (userId: string): Promise<void> => {
   return api.delete(
     `/admin/users/${userId}`,
+    getAuthHeader()
+  );
+};
+
+export const updateUser = (userPreferences: UserPreferencesDto): Promise<void> => {
+  return api.put(
+    `/user/update`,
+    userPreferences,
     getAuthHeader()
   );
 };
