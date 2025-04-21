@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
-const API_URL = 'https://customizable-forms-backend.vercel.app/api';
+const API_URL = 'https://customizableforms.runasp.net/api';
 
 interface AuthTokens {
   accessToken: string;
