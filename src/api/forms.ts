@@ -1,5 +1,5 @@
 import api from './axios';
-import { Form, FormForSubmissionDto, FormForUpdateDto, FormResultsAggregation } from '../types';
+import { Form, FormForSubmissionDto, FormForUpdateDto, FormResultsAggregation, MetaData } from '../types';
 
 const getAuthHeader = () => ({
   headers: {
@@ -7,14 +7,26 @@ const getAuthHeader = () => ({
   }
 });
 
-export const getUserForms = (): Promise<Form[]> => {
-  return api.get('/forms/my', getAuthHeader())
-    .then(response => response.data);
+export const getUserForms = (pageNumber: number, pageSize: number): Promise<{data: Form[], metaData: MetaData}> => {
+  return api.get(`/forms/my?PageNumber=${pageNumber + 1}&PageSize=${pageSize}`, getAuthHeader())
+    .then(response => {
+      const metaData = JSON.parse(response.headers['x-pagination']) as MetaData;
+      return {
+        data: response.data,
+        metaData
+      };
+    });
 };
 
-export const getTemplateForms = (templateId: string): Promise<Form[]> => {
-  return api.get(`/forms/template/${templateId}`, getAuthHeader())
-    .then(response => response.data);
+export const getTemplateForms = (templateId: string, pageNumber: number, pageSize: number): Promise<{data: Form[], metaData: MetaData}> => {
+  return api.get(`/forms/template/${templateId}?PageNumber=${pageNumber + 1}&PageSize=${pageSize}`, getAuthHeader())
+    .then(response => {
+      const metaData = JSON.parse(response.headers['x-pagination']) as MetaData;
+      return {
+        data: response.data,
+        metaData
+      };
+    });
 };
 
 export const getForm = (id: string): Promise<Form> => {

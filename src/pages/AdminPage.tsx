@@ -10,7 +10,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { User } from '../types';
+import { User, MetaData } from '../types';
 import * as adminApi from '../api/admin';
 import UserList from '../components/admin/UserList';
 
@@ -34,33 +34,40 @@ const AdminPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [metaData, setMetaData] = useState<MetaData>({
+    CurrentPage: 1,
+    TotalPages: 1,
+    PageSize: 10,
+    TotalCount: 0,
+    HasPrevious: false,
+    HasNext: false
+  });
+  
+  const fetchUsers = async (pageNumber = 1) => {
+    try {
+      setLoading(true);
+      const result = await adminApi.getAllUsers(pageNumber, 10);
+      setUsers(result.users);
+      setMetaData(result.metaData);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      setError(t('admin.fetchError'));
+    } finally {
+      setLoading(false);
+    }
+  };
   
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const data = await adminApi.getAllUsers();
-        
-        const processedUsers = data.map(user => ({
-          ...user,
-          status: user.status?.includes('Blocked') ? 'Blocked' : 'Active'
-        }));
-        
-        setUsers(processedUsers);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching users:', err);
-        setError(t('admin.fetchError'));
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchUsers();
-  }, [t]);
+    fetchUsers(1);
+  }, []);
   
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+  
+  const handlePageChange = (event: unknown, newPage: number) => {
+    fetchUsers(newPage + 1);
   };
   
   const handleBlockUser = async (userId: string) => {
@@ -136,13 +143,17 @@ const AdminPage: React.FC = () => {
       await adminApi.deleteUser(userId);
       
       setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+      
+      if (users.length === 1 && metaData.CurrentPage > 1) {
+        fetchUsers(metaData.CurrentPage - 1);
+      }
     } catch (err) {
       console.error('Error deleting user:', err);
       setError(t('admin.deleteError'));
     }
   };
   
-  if (loading) {
+  if (loading && users.length === 0) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
         <CircularProgress />
@@ -180,6 +191,9 @@ const AdminPage: React.FC = () => {
             onAddAdminRole={handleAddAdminRole}
             onRemoveAdminRole={handleRemoveAdminRole}
             onDeleteUser={handleDeleteUser}
+            page={metaData.CurrentPage - 1}
+            totalCount={metaData.TotalCount}
+            onPageChange={handlePageChange}
           />
         </TabPanel>
       </Paper>

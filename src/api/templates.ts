@@ -5,13 +5,40 @@ import {
   TemplateForUpdateDto,
   Question,
   QuestionForCreationDto,
-  QuestionForUpdateDto
+  QuestionForUpdateDto,
+  MetaData
 } from '../types';
 
-export const getTemplates = (): Promise<Template[]> => {
-  return api.get('/templates').then(response => response.data);
+export const getTemplates = (
+  pageNumber: number = 1,
+  pageSize: number = 8,
+  searchTopic: string = '',
+  orderBy: string = 'Title'
+): Promise<{ templates: Template[], metaData: MetaData }> => {
+  return api.get('/templates', {
+    params: {
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+      searchTopic: searchTopic !== 'all' ? searchTopic : '',
+      OrderBy: orderBy
+    }
+  }).then(response => {
+    const paginationHeader = response.headers['x-pagination'];
+    const metaData = paginationHeader ? JSON.parse(paginationHeader) : {
+      CurrentPage: 1,
+      TotalPages: 1,
+      PageSize: response.data.length,
+      TotalCount: response.data.length,
+      HasPrevious: false,
+      HasNext: false
+    };
+    
+    return {
+      templates: response.data,
+      metaData
+    };
+  });
 };
-
 export const getPopularTemplates = (count: number): Promise<Template[]> => {
   return api.get(`/templates/popular/${count}`).then(response => response.data);
 };
@@ -20,8 +47,22 @@ export const getRecentTemplates = (count: number): Promise<Template[]> => {
   return api.get(`/templates/recent/${count}`).then(response => response.data);
 };
 
-export const searchTemplates = (searchTerm: string): Promise<Template[]> => {
-  return api.get(`/templates/search?searchTerm=${searchTerm}`).then(response => response.data);
+export const searchTemplates = (
+  searchTerm: string, 
+  page: number = 1, 
+  pageSize: number = 4
+): Promise<{ templates: Template[], metaData: MetaData }> => {
+  return api.get(
+    `/templates/search?searchTerm=${encodeURIComponent(searchTerm)}&pageNumber=${page}&pageSize=${pageSize}`
+  ).then(response => {
+    const paginationHeader = response.headers['x-pagination'];
+    const metaData: MetaData = paginationHeader ? JSON.parse(paginationHeader) : {};
+    
+    return {
+      templates: response.data,
+      metaData
+    };
+  });
 };
 
 export const getTemplate = (id: string): Promise<Template> => {
@@ -32,12 +73,31 @@ export const getTemplateQuestions = (templateId: string): Promise<Question[]> =>
   return api.get(`/templates/${templateId}/questions`).then(response => response.data);
 };
 
-export const getUserTemplates = (): Promise<Template[]> => {
-  return api.get('/templates/my').then(response => response.data);
-};
-
-export const getAccessibleTemplates = (): Promise<Template[]> => {
-  return api.get('/templates/accessible').then(response => response.data);
+export const getUserTemplates = (
+  pageNumber: number = 1, 
+  pageSize: number = 10
+): Promise<{ templates: Template[], metaData: MetaData }> => {
+  return api.get('/templates/my', {
+    params: { 
+      PageNumber: pageNumber, 
+      PageSize: pageSize 
+    } 
+  }).then(response => {
+    const paginationHeader = response.headers['x-pagination'];
+    const metaData = paginationHeader ? JSON.parse(paginationHeader) : {
+      CurrentPage: 1,
+      TotalPages: 1,
+      PageSize: response.data.length,
+      TotalCount: response.data.length,
+      HasPrevious: false,
+      HasNext: false
+    };
+    
+    return {
+      templates: response.data,
+      metaData
+    };
+  });
 };
 
 export const createTemplate = (template: TemplateForCreationDto): Promise<Template> => {

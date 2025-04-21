@@ -66,7 +66,9 @@
       "imageTypeError": "Invalid file. Acceptable format is png and jpeg",
       "imageSizeError": "Invalid image size. Max size is 5 MB",
       "noResponses": "No results",
-      "uploadImage": "Upload"
+      "uploadImage": "Upload",
+      "page": "Page",
+      "of": "of"
     },
     "questions": {
       "add": "Add Question",
@@ -132,7 +134,9 @@
       "roleError": "Error while changing role",
       "selected": "selected",
       "deleteError": "Error while deleting user",
-      "blockError": "You cannot block yourself"
+      "blockError": "You cannot block yourself",
+      "page": "Page",
+      "of": "of"
     },
     "search": {
       "placeholder": "Search templates...",

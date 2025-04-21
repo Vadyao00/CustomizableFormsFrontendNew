@@ -6,17 +6,11 @@ import {
   Paper,
   Alert,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Button,
   Tab,
   Tabs
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { Form } from '../types';
+import { Form, MetaData } from '../types';
 import * as formsApi from '../api/forms';
 import FormList from '../components/forms/FormList';
 
@@ -42,35 +36,42 @@ const MyFormsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [tabValue, setTabValue] = useState(0);
   
+  const [page, setPage] = useState(0);
+  const [metaData, setMetaData] = useState<MetaData | null>(null);
+  const pageSize = 5;
+  
+  const fetchMyForms = async (currentPage: number) => {
+    try {
+      setLoading(true);
+      const result = await formsApi.getUserForms(currentPage, pageSize);
+      setForms(result.data);
+      setMetaData(result.metaData);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching my forms:', err);
+      setError(t('forms.fetchError'));
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   useEffect(() => {
-    const fetchMyForms = async () => {
-      try {
-        setLoading(true);
-        const data = await formsApi.getUserForms();
-        setForms(data);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching my forms:', err);
-        setError(t('forms.fetchError'));
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchMyForms();
-  }, [t]);
+    fetchMyForms(page);
+  }, [page, t]);
   
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+  };
+  
+  const handlePageChange = (event: unknown, newPage: number) => {
+    setPage(newPage);
   };
   
   const handleDeleteForm = async (formId: string): Promise<void> => {
     try {
       await formsApi.deleteForm(formId);
       
-      setForms(prevForms => 
-        prevForms.filter(form => form.id !== formId)
-      );
+      fetchMyForms(page);
       
       return Promise.resolve();
     } catch (err) {
@@ -80,7 +81,7 @@ const MyFormsPage: React.FC = () => {
     }
   };
   
-  if (loading) {
+  if (loading && page === 0) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
         <CircularProgress />
@@ -111,7 +112,11 @@ const MyFormsPage: React.FC = () => {
         </Tabs>
         
         <TabPanel value={tabValue} index={0}>
-          {forms.length === 0 ? (
+          {loading ? (
+            <Box display="flex" justifyContent="center" py={4}>
+              <CircularProgress size={24} />
+            </Box>
+          ) : forms.length === 0 ? (
             <Alert severity="info">
               {t('forms.noSubmittedForms')}
             </Alert>
@@ -121,6 +126,9 @@ const MyFormsPage: React.FC = () => {
               showTemplateInfo
               showUserInfo={false}
               onDeleteForm={handleDeleteForm}
+              page={page}
+              totalCount={metaData?.TotalCount || 0}
+              onPageChange={handlePageChange}
             />
           )}
         </TabPanel>

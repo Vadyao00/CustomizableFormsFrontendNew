@@ -17,7 +17,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  TablePagination,
   Checkbox,
   Toolbar,
   IconButton
@@ -40,6 +39,9 @@ interface UserListProps {
   onAddAdminRole: (userId: string) => Promise<void>;
   onRemoveAdminRole: (userId: string) => Promise<void>;
   onDeleteUser: (userId: string) => Promise<void>;
+  page: number;
+  totalCount: number;
+  onPageChange: (event: unknown, newPage: number) => void;
 }
 
 const UserList: React.FC<UserListProps> = ({
@@ -48,23 +50,15 @@ const UserList: React.FC<UserListProps> = ({
   onUnblockUser,
   onAddAdminRole,
   onRemoveAdminRole,
-  onDeleteUser
+  onDeleteUser,
+  page,
+  totalCount,
+  onPageChange
 }) => {
   const { t } = useTranslation();
   const { authState } = useAuth();
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
 
   const handleDeleteClick = () => {
     setDeleteDialogOpen(true);
@@ -78,15 +72,9 @@ const UserList: React.FC<UserListProps> = ({
     setSelectedUserIds([]);
   };
 
-  const isCurrentUser = (userId: string) => {
-    return authState.user?.id === userId;
-  };
-
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const allUserIds = users
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-        .map(user => user.id);
+      const allUserIds = users.map(user => user.id);
       setSelectedUserIds(allUserIds);
     } else {
       setSelectedUserIds([]);
@@ -138,6 +126,9 @@ const UserList: React.FC<UserListProps> = ({
       </Typography>
     );
   }
+
+  const pageSize = 10;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
     <Box>
@@ -225,7 +216,7 @@ const UserList: React.FC<UserListProps> = ({
             <TableRow>
               <TableCell padding="checkbox">
                 <Checkbox
-                  checked={selectedUserIds.length > 0 && selectedUserIds.length === Math.min(rowsPerPage, users.length)}
+                  checked={selectedUserIds.length > 0 && selectedUserIds.length === users.length}
                   onChange={handleSelectAllClick}
                 />
               </TableCell>
@@ -236,66 +227,92 @@ const UserList: React.FC<UserListProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {users
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((user) => {
-                const isItemSelected = isSelected(user.id);
-                const isDisabled = isCurrentUser(user.id);
-                
-                return (
-                  <TableRow 
-                    key={user.id}
-                    hover
-                    role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    selected={isItemSelected}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={isItemSelected}
-                        onChange={() => handleRowSelect(user.id)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </TableCell>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
+            {users.map((user) => {
+              const isItemSelected = isSelected(user.id);
+              
+              return (
+                <TableRow 
+                  key={user.id}
+                  hover
+                  role="checkbox"
+                  aria-checked={isItemSelected}
+                  tabIndex={-1}
+                  selected={isItemSelected}
+                >
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={isItemSelected}
+                      onChange={() => handleRowSelect(user.id)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </TableCell>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={user.status === 'Active' ? t('user.active') : t('user.blocked')}
+                      color={user.status === 'Active' ? 'success' : 'error'}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {user.roles?.map((role) => (
                       <Chip
-                        label={user.status === 'Active' ? t('user.active') : t('user.blocked')}
-                        color={user.status === 'Active' ? 'success' : 'error'}
+                        key={role}
+                        label={role}
+                        color={role === 'Admin' ? 'primary' : 'default'}
                         size="small"
+                        icon={role === 'Admin' ? <AdminIcon /> : <UserIcon />}
+                        sx={{ mr: 0.5 }}
                       />
-                    </TableCell>
-                    <TableCell>
-                      {user.roles?.map((role) => (
-                        <Chip
-                          key={role}
-                          label={role}
-                          color={role === 'Admin' ? 'primary' : 'default'}
-                          size="small"
-                          icon={role === 'Admin' ? <AdminIcon /> : <UserIcon />}
-                          sx={{ mr: 0.5 }}
-                        />
-                      ))}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                    ))}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
       
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={users.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        labelRowsPerPage={t('table.rowsPerPage')}
-      />
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          p: 2
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          <IconButton
+            onClick={(e) => onPageChange(e, page - 1)}
+            disabled={page <= 0}
+            size="small"
+            aria-label="предыдущая страница"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </IconButton>
+          <Typography variant="body2" sx={{ mx: 2 }}>
+            {t('admin.page')} {page + 1} {t('admin.of')} {totalPages}
+          </Typography>
+          <IconButton
+            onClick={(e) => onPageChange(e, page + 1)}
+            disabled={page >= totalPages - 1}
+            size="small"
+            aria-label="следующая страница"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </IconButton>
+        </Box>
+      </Box>
       
       <Dialog
         open={deleteDialogOpen}

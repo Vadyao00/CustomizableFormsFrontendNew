@@ -12,7 +12,6 @@ import {
   Tooltip,
   Typography,
   Chip,
-  TablePagination,
   Checkbox,
   Toolbar,
   Dialog,
@@ -37,18 +36,22 @@ interface FormListProps {
   onDeleteForm?: (formId: string) => Promise<void>;
   showTemplateInfo?: boolean;
   showUserInfo?: boolean;
+  page: number;
+  totalCount: number;
+  onPageChange: (event: unknown, newPage: number) => void;
 }
 
 const FormList: React.FC<FormListProps> = ({
   forms,
   onDeleteForm,
   showTemplateInfo = true,
-  showUserInfo = true
+  showUserInfo = true,
+  page,
+  totalCount,
+  onPageChange
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedFormIds, setSelectedFormIds] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -78,20 +81,9 @@ const FormList: React.FC<FormListProps> = ({
     setSelectedFormIds([]);
   };
 
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const allFormIds = forms
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-        .map(form => form.id);
+      const allFormIds = forms.map(form => form.id);
       setSelectedFormIds(allFormIds);
     } else {
       setSelectedFormIds([]);
@@ -115,6 +107,9 @@ const FormList: React.FC<FormListProps> = ({
       </Typography>
     );
   }
+
+  const pageSize = 5;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
     <Box>
@@ -180,7 +175,7 @@ const FormList: React.FC<FormListProps> = ({
             <TableRow>
               <TableCell padding="checkbox">
                 <Checkbox
-                  checked={selectedFormIds.length > 0 && selectedFormIds.length === Math.min(rowsPerPage, forms.length)}
+                  checked={selectedFormIds.length > 0 && selectedFormIds.length === forms.length}
                   onChange={handleSelectAllClick}
                 />
               </TableCell>
@@ -194,67 +189,94 @@ const FormList: React.FC<FormListProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {forms
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((form) => {
-                const isItemSelected = isSelected(form.id);
-                
-                return (
-                  <TableRow 
-                    key={form.id}
-                    hover
-                    role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    selected={isItemSelected}
-                    onClick={() => handleRowSelect(form.id)}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={isItemSelected}
-                        onChange={() => handleRowSelect(form.id)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </TableCell>
-                    {showTemplateInfo && (
-                      <TableCell>
-                        <Typography variant="body2" fontWeight="medium">
-                          {form.template.title}
-                        </Typography>
-                        {form.template.topic && (
-                          <Chip 
-                            label={form.template.topic} 
-                            size="small" 
-                            sx={{ mt: 0.5 }}
-                          />
-                        )}
-                      </TableCell>
-                    )}
-                    
-                    {showUserInfo && (
-                      <TableCell>{form.user.name}</TableCell>
-                    )}
-                    
+            {forms.map((form) => {
+              const isItemSelected = isSelected(form.id);
+              
+              return (
+                <TableRow 
+                  key={form.id}
+                  hover
+                  role="checkbox"
+                  aria-checked={isItemSelected}
+                  tabIndex={-1}
+                  selected={isItemSelected}
+                  onClick={() => handleRowSelect(form.id)}
+                >
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={isItemSelected}
+                      onChange={() => handleRowSelect(form.id)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </TableCell>
+                  {showTemplateInfo && (
                     <TableCell>
-                      {dayjs(form.submittedAt).format('DD.MM.YYYY HH:mm')}
+                      <Typography variant="body2" fontWeight="medium">
+                        {form.template.title}
+                      </Typography>
+                      {form.template.topic && (
+                        <Chip 
+                          label={form.template.topic} 
+                          size="small" 
+                          sx={{ mt: 0.5 }}
+                        />
+                      )}
                     </TableCell>
-                  </TableRow>
-                );
-              })}
+                  )}
+                  
+                  {showUserInfo && (
+                    <TableCell>{form.user.name}</TableCell>
+                  )}
+                  
+                  <TableCell>
+                    {dayjs(form.submittedAt).format('DD.MM.YYYY HH:mm')}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
       
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={forms.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        labelRowsPerPage={t('table.rowsPerPage')}
-      />
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          p: 2
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          <IconButton
+            onClick={(e) => onPageChange(e, page - 1)}
+            disabled={page <= 0}
+            size="small"
+            aria-label="предыдущая страница"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </IconButton>
+          <Typography variant="body2" sx={{ mx: 2 }}>
+            {t('admin.page')} {page + 1} {t('admin.of')} {totalPages}
+          </Typography>
+          <IconButton
+            onClick={(e) => onPageChange(e, page + 1)}
+            disabled={page >= totalPages - 1}
+            size="small"
+            aria-label="следующая страница"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </IconButton>
+        </Box>
+      </Box>
       
       <Dialog
         open={deleteDialogOpen}

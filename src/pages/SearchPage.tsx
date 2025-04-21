@@ -7,11 +7,15 @@ import {
   CircularProgress,
   Alert,
   Paper,
-  Pagination
+  IconButton
 } from '@mui/material';
+import {
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon
+} from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Template } from '../types';
+import { Template, MetaData } from '../types';
 import * as templatesApi from '../api/templates';
 import TemplateCard from '../components/templates/TemplateCard';
 
@@ -25,43 +29,51 @@ const SearchPage: React.FC = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const templatesPerPage = 12;
+  const [metaData, setMetaData] = useState<MetaData>({
+    CurrentPage: 1,
+    TotalPages: 1,
+    PageSize: 4,
+    TotalCount: 0,
+    HasPrevious: false,
+    HasNext: false
+  });
   
-  useEffect(() => {
+  const fetchSearchResults = async (pageNumber = 1) => {
     if (!searchQuery) {
       navigate('/');
       return;
     }
     
-    const fetchSearchResults = async () => {
-      try {
-        setLoading(true);
-        const results = await templatesApi.searchTemplates(searchQuery);
-        setTemplates(results);
+    try {
+      setLoading(true);
+      const result = await templatesApi.searchTemplates(searchQuery, pageNumber, metaData.PageSize);
+      
+      if (result && result.templates && result.metaData) {
+        setTemplates(result.templates);
+        setMetaData(result.metaData);
         setError(null);
-      } catch (err) {
-        console.error('Error searching templates:', err);
+      } else {
+        console.error('Unexpected API response format:', result);
+        setTemplates(Array.isArray(result) ? result : []);
         setError(t('search.error'));
-      } finally {
-        setLoading(false);
       }
-    };
-    
+    } catch (err) {
+      console.error('Error searching templates:', err);
+      setError(t('search.error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     fetchSearchResults();
   }, [searchQuery, navigate, t]);
   
-  const handleChangePage = (event: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
-    window.scrollTo(0, 0);
+  const handlePageChange = (newPage: number) => {
+    fetchSearchResults(newPage);
   };
   
-  const indexOfLastTemplate = page * templatesPerPage;
-  const indexOfFirstTemplate = indexOfLastTemplate - templatesPerPage;
-  const currentTemplates = templates.slice(indexOfFirstTemplate, indexOfLastTemplate);
-  const totalPages = Math.ceil(templates.length / templatesPerPage);
-  
-  if (loading) {
+  if (loading && templates.length === 0) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
         <CircularProgress />
@@ -89,41 +101,69 @@ const SearchPage: React.FC = () => {
         </Typography>
         
         <Typography variant="body2">
-          {templates.length === 0
+          {metaData.TotalCount === 0
             ? t('search.noResults')
-            : t('search.foundResults', { count: templates.length })}
+            : t('search.foundResults', { count: metaData.TotalCount })}
         </Typography>
       </Paper>
       
-      {templates.length > 0 ? (
-        <>
-          <Grid container spacing={3}>
-            {currentTemplates.map((template) => (
-              <Grid item key={template.id} xs={12} sm={6} md={4} lg={3}>
-                <TemplateCard template={template} />
-              </Grid>
-            ))}
-          </Grid>
-          
-          {totalPages > 1 && (
-            <Box display="flex" justifyContent="center" mt={4}>
-              <Pagination
-                count={totalPages}
-                page={page}
-                onChange={handleChangePage}
-                color="primary"
-                size="large"
-              />
+      <Paper sx={{ mb: 4 }}>
+        {templates.length === 0 ? (
+          <Box textAlign="center" py={4}>
+            <Typography variant="h6" color="text.secondary">
+              {t('search.tryDifferentQuery')}
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            <Grid container spacing={3} sx={{ p: 3 }}>
+              {templates.map((template) => (
+                <Grid item key={template.id} xs={12} sm={6} md={4} lg={3}>
+                  <TemplateCard template={template} />
+                </Grid>
+              ))}
+            </Grid>
+            
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                p: 2,
+                borderTop: '1px solid',
+                borderColor: 'divider'
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                <IconButton
+                  onClick={() => handlePageChange(metaData.CurrentPage - 1)}
+                  disabled={!metaData.HasPrevious}
+                  size="small"
+                  aria-label="previous page"
+                >
+                  <ChevronLeftIcon />
+                </IconButton>
+                <Typography variant="body2" sx={{ mx: 2 }}>
+                  {t('templates.page')} {metaData.CurrentPage} {t('templates.of')} {metaData.TotalPages}
+                </Typography>
+                <IconButton
+                  onClick={() => handlePageChange(metaData.CurrentPage + 1)}
+                  disabled={!metaData.HasNext}
+                  size="small"
+                  aria-label="next page"
+                >
+                  <ChevronRightIcon />
+                </IconButton>
+              </Box>
             </Box>
-          )}
-        </>
-      ) : (
-        <Box textAlign="center" py={4}>
-          <Typography variant="h6" color="text.secondary">
-            {t('search.tryDifferentQuery')}
-          </Typography>
-        </Box>
-      )}
+          </>
+        )}
+      </Paper>
     </Container>
   );
 };

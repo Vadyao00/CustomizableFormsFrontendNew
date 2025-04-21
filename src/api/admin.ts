@@ -1,5 +1,5 @@
 import api from './axios';
-import { User, UserPreferencesDto } from '../types';
+import { User, UserPreferencesDto, MetaData } from '../types';
 
 const getAuthHeader = () => ({
   headers: {
@@ -7,10 +7,45 @@ const getAuthHeader = () => ({
   }
 });
 
-export const getAllUsers = (): Promise<User[]> => {
-  return api.get('/admin/users', getAuthHeader())
-    .then(response => response.data);
+export const getAllUsers = (
+  pageNumber: number = 1, 
+  pageSize: number = 10,
+  orderBy: string = 'Name'
+): Promise<{ users: User[], metaData: MetaData }> => {
+  return api.get(
+    '/admin/users', 
+    { 
+      ...getAuthHeader(),
+      params: { 
+        PageNumber: pageNumber, 
+        PageSize: pageSize, 
+        OrderBy: orderBy 
+      } 
+    }
+  )
+    .then(response => {
+      const paginationHeader = response.headers['x-pagination'];
+      const metaData = paginationHeader ? JSON.parse(paginationHeader) : {
+        CurrentPage: 1,
+        TotalPages: 1,
+        PageSize: response.data.length,
+        TotalCount: response.data.length,
+        HasPrevious: false,
+        HasNext: false
+      };
+      
+      const processedUsers = response.data.map((user: User) => ({
+        ...user,
+        status: user.status?.includes('Blocked') ? 'Blocked' : 'Active'
+      }));
+      
+      return {
+        users: processedUsers,
+        metaData
+      };
+    });
 };
+
 
 export const blockUser = (userId: string): Promise<void> => {
   return api.post(
@@ -51,7 +86,7 @@ export const deleteUser = (userId: string): Promise<void> => {
   );
 };
 
-export const updateUser = (userPreferences: UserPreferencesDto): Promise<void> => {
+export const updateUser = async (userPreferences: UserPreferencesDto): Promise<void> => {
   return api.put(
     `/user/update`,
     userPreferences,

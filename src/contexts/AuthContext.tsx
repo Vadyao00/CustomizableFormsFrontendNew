@@ -105,11 +105,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     setIsMounted(true);
     
-    const checkTokensOnPageLoad = () => {
+    const checkTokensOnPageLoad = async () => {
       const accessToken = getAccessToken();
       if (isTokenExpired(accessToken)) {
-        console.log('Found expired tokens on page load, clearing them');
-        clearTokens();
+        console.log('Found expired tokens on page load, attempting to refresh');
+        try {
+          await refreshAuthToken();
+        } catch (error) {
+          console.error('Token refresh failed on page load, clearing tokens:', error);
+          clearTokens();
+        }
       }
     };
     
@@ -182,28 +187,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const accessToken = getAccessToken();
         
-        if (isTokenExpired(accessToken)) {
-          clearTokens();
-          setAuthState(defaultAuthState);
-          return;
-        }
-        
-        if (!accessToken) {
-          setAuthState(defaultAuthState);
-          return;
-        }
-
-        const { user, roles } = getUserFromToken(accessToken);
-        if (user) {
-          setAuthState({ isAuthenticated: true, user, roles });
+        if (accessToken) {
+          if (isTokenExpired(accessToken)) {
+            try {
+              await refreshAuthToken();
+              return;
+            } catch (error) {
+              console.error('Auth token refresh failed during check:', error);
+              clearTokens();
+              setAuthState(defaultAuthState);
+              return;
+            }
+          }
+          
+          const { user, roles } = getUserFromToken(accessToken);
+          if (user) {
+            setAuthState({ isAuthenticated: true, user, roles });
+          } else {
+            try {
+              await refreshAuthToken();
+            } catch (error) {
+              clearTokens();
+              setAuthState(defaultAuthState);
+            }
+          }
         } else {
-          clearTokens();
           setAuthState(defaultAuthState);
         }
       } catch (error) {
         console.error('Auth check error:', error);
-        clearTokens();
-        setAuthState(defaultAuthState);
+        try {
+          await refreshAuthToken();
+        } catch (refreshError) {
+          clearTokens();
+          setAuthState(defaultAuthState);
+        }
       }
     };
 

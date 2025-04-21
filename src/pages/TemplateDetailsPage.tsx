@@ -29,7 +29,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import ReactMarkdown from 'react-markdown';
-import { Template, Question, QuestionType, Form } from '../types';
+import { Template, Question, QuestionType, Form, MetaData } from '../types';
 import * as templatesApi from '../api/templates';
 import * as formsApi from '../api/forms';
 import { useAuth } from '../contexts/AuthContext';
@@ -69,6 +69,10 @@ const TemplateDetailsPage: React.FC = () => {
   const [forms, setForms] = useState<Form[]>([]);
   const [formsLoading, setFormsLoading] = useState(true);
   
+  const [formsPage, setFormsPage] = useState(0);
+  const [formsMetaData, setFormsMetaData] = useState<MetaData | null>(null);
+  const pageSize = 5;
+  
   useEffect(() => {
     if (!id) return;
     
@@ -100,24 +104,31 @@ const TemplateDetailsPage: React.FC = () => {
     return template.creator.id === authState.user?.id || isAdmin();
   };
 
+  const fetchForms = async (currentPage: number) => {
+    if (!template || !id) return;
+    
+    try {
+      setFormsLoading(true);
+      const result = await formsApi.getTemplateForms(id, currentPage, pageSize);
+      setForms(result.data);
+      setFormsMetaData(result.metaData);
+    } catch (err) {
+      console.error('Error fetching forms:', err);
+      setError(t('forms.fetchError'));
+    } finally {
+      setFormsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (template && canEditTemplate()) {
-      const fetchForms = async () => {
-        try {
-          setFormsLoading(true);
-          const formsData = await formsApi.getTemplateForms(template.id);
-          setForms(formsData);
-        } catch (err) {
-          console.error('Error fetching forms:', err);
-          setError(t('forms.fetchError'));
-        } finally {
-          setFormsLoading(false);
-        }
-      };
-  
-      fetchForms();
+      fetchForms(formsPage);
     }
-  }, [template, t]);
+  }, [template, formsPage, t]);
+
+  const handleFormsPageChange = (event: unknown, newPage: number) => {
+    setFormsPage(newPage);
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -212,7 +223,6 @@ const TemplateDetailsPage: React.FC = () => {
             <Box display="flex" alignItems="center" gap={1} mb={2}>
               <Chip label={template.topic} color="primary" />
               
-              {/* Ограничиваем количество отображаемых тегов */}
               {template.tags.slice(0, 3).map(tag => (
                 <Chip
                   key={tag}
@@ -222,7 +232,6 @@ const TemplateDetailsPage: React.FC = () => {
                 />
               ))}
               
-              {/* Если тегов больше 3, показываем чип с количеством оставшихся */}
               {template.tags.length > 3 && (
                 <Tooltip title={template.tags.slice(3).join(', ')}>
                   <Chip
@@ -230,8 +239,6 @@ const TemplateDetailsPage: React.FC = () => {
                     variant="outlined"
                     color="default"
                     onClick={() => {
-                      // Можно добавить логику для открытия модального окна со всеми тегами
-                      // или другой способ отображения полного списка тегов
                     }}
                   />
                 </Tooltip>
@@ -392,6 +399,9 @@ const TemplateDetailsPage: React.FC = () => {
                   forms={forms}
                   showUserInfo
                   showTemplateInfo={false}
+                  page={formsPage}
+                  totalCount={formsMetaData?.TotalCount || 0}
+                  onPageChange={handleFormsPageChange}
                 />
               )}
             </TabPanel>
@@ -420,7 +430,7 @@ const TemplateDetailsPage: React.FC = () => {
           <Button onClick={handleDeleteTemplate} color="error" autoFocus>
             {t('common.delete')}
           </Button>
-        </DialogActions>
+        </DialogActions>  
       </Dialog>
     </Container>
   );
