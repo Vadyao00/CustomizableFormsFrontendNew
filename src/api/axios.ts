@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
-const API_URL = 'https://localhost:7164/api';
+const API_URL = 'https://customizableforms.runasp.net/api';
 
 interface AuthTokens {
   accessToken: string;

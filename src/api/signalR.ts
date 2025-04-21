@@ -1,7 +1,7 @@
 import * as signalR from '@microsoft/signalr';
 import { Comment } from '../types';
 
-const API_URL = 'https://localhost:7164';
+const API_URL = 'https://customizableforms.runasp.net';
 
 class SignalRConnection {
   private static instance: SignalRConnection;
