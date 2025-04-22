@@ -71,12 +71,27 @@ const MyTemplatesPage: React.FC = () => {
   const fetchTemplates = async (pageNumber = 1) => {
     try {
       setLoading(true);
-      const result = await templatesApi.getUserTemplates(pageNumber, 5);
+      let result;
+      
+      switch (tabValue) {
+        case 0:
+          result = await templatesApi.getUserTemplates(pageNumber, 4);
+          break;
+        case 1:
+          result = await templatesApi.getUserPublicTemplates(pageNumber, 4);
+          break;
+        case 2:
+          result = await templatesApi.getUserPrivateTemplates(pageNumber, 4);
+          break;
+        default:
+          result = await templatesApi.getUserTemplates(pageNumber, 4);
+      }
+      
       setTemplates(result.templates);
       setMetaData(result.metaData);
       setError(null);
     } catch (err) {
-      console.error('Error fetching my templates:', err);
+      console.error('Error fetching templates:', err);
       setError(t('templates.fetchError'));
     } finally {
       setLoading(false);
@@ -85,7 +100,7 @@ const MyTemplatesPage: React.FC = () => {
   
   useEffect(() => {
     fetchTemplates();
-  }, []);
+  }, [tabValue]);
   
   useEffect(() => {
     setSelectedTemplateIds([]);
@@ -151,21 +166,7 @@ const MyTemplatesPage: React.FC = () => {
   
   const handleSelectAllTemplates = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      let templatesForCurrentTab: Template[] = [];
-      
-      switch (tabValue) {
-        case 0:
-          templatesForCurrentTab = templates;
-          break;
-        case 1:
-          templatesForCurrentTab = templates.filter(template => template.isPublic);
-          break;
-        case 2:
-          templatesForCurrentTab = templates.filter(template => !template.isPublic);
-          break;
-      }
-      
-      setSelectedTemplateIds(templatesForCurrentTab.map(template => template.id));
+      setSelectedTemplateIds(templates.map(template => template.id));
     } else {
       setSelectedTemplateIds([]);
     }
@@ -180,20 +181,6 @@ const MyTemplatesPage: React.FC = () => {
       </Box>
     );
   }
-  
-  const publicTemplates = templates.filter(template => template.isPublic);
-  const privateTemplates = templates.filter(template => !template.isPublic);
-  
-  const getCurrentTabTemplates = () => {
-    switch (tabValue) {
-      case 0: return templates;
-      case 1: return publicTemplates;
-      case 2: return privateTemplates;
-      default: return templates;
-    }
-  };
-  
-  const currentTemplates = getCurrentTabTemplates();
   
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
@@ -295,6 +282,7 @@ const MyTemplatesPage: React.FC = () => {
                   <Checkbox
                     checked={selectedTemplateIds.length > 0 && selectedTemplateIds.length === templates.length}
                     onChange={handleSelectAllTemplates}
+                    indeterminate={selectedTemplateIds.length > 0 && selectedTemplateIds.length < templates.length}
                     size="small"
                   />
                   <Typography variant="body2" sx={{ ml: 1 }}>
@@ -330,7 +318,7 @@ const MyTemplatesPage: React.FC = () => {
         </TabPanel>
         
         <TabPanel value={tabValue} index={1}>
-          {publicTemplates.length === 0 ? (
+          {templates.length === 0 ? (
             <Alert severity="info">
               {t('templates.noPublicTemplates')}
             </Alert>
@@ -339,8 +327,9 @@ const MyTemplatesPage: React.FC = () => {
               <Grid item xs={12}>
                 <Box px={2} py={1} display="flex" alignItems="center" sx={{ borderBottom: '1px solid', borderColor: 'divider', backgroundColor: 'background.default' }}>
                   <Checkbox
-                    checked={selectedTemplateIds.length > 0 && selectedTemplateIds.length === publicTemplates.length}
+                    checked={selectedTemplateIds.length > 0 && selectedTemplateIds.length === templates.length}
                     onChange={handleSelectAllTemplates}
+                    indeterminate={selectedTemplateIds.length > 0 && selectedTemplateIds.length < templates.length}
                     size="small"
                   />
                   <Typography variant="body2" sx={{ ml: 1 }}>
@@ -349,7 +338,7 @@ const MyTemplatesPage: React.FC = () => {
                 </Box>
               </Grid>
               
-              {publicTemplates.map((template) => (
+              {templates.map((template) => (
                 <Grid item key={template.id} xs={12}>
                   <Paper sx={{ p: 1 }}>
                     <Box display="flex" alignItems="center">
@@ -375,7 +364,7 @@ const MyTemplatesPage: React.FC = () => {
         </TabPanel>
         
         <TabPanel value={tabValue} index={2}>
-          {privateTemplates.length === 0 ? (
+          {templates.length === 0 ? (
             <Alert severity="info">
               {t('templates.noPrivateTemplates')}
             </Alert>
@@ -384,8 +373,9 @@ const MyTemplatesPage: React.FC = () => {
               <Grid item xs={12}>
                 <Box px={2} py={1} display="flex" alignItems="center" sx={{ borderBottom: '1px solid', borderColor: 'divider', backgroundColor: 'background.default' }}>
                   <Checkbox
-                    checked={selectedTemplateIds.length > 0 && selectedTemplateIds.length === privateTemplates.length}
+                    checked={selectedTemplateIds.length > 0 && selectedTemplateIds.length === templates.length}
                     onChange={handleSelectAllTemplates}
+                    indeterminate={selectedTemplateIds.length > 0 && selectedTemplateIds.length < templates.length}
                     size="small"
                   />
                   <Typography variant="body2" sx={{ ml: 1 }}>
@@ -394,7 +384,7 @@ const MyTemplatesPage: React.FC = () => {
                 </Box>
               </Grid>
               
-              {privateTemplates.map((template) => (
+              {templates.map((template) => (
                 <Grid item key={template.id} xs={12}>
                   <Paper sx={{ p: 1 }}>
                     <Box display="flex" alignItems="center">

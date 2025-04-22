@@ -16,7 +16,9 @@ import {
   ListItemText,
   Divider,
   Avatar,
-  Switch
+  Switch,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -28,12 +30,14 @@ import {
   SupervisorAccount as AdminIcon,
   Brightness4 as ThemeIcon,
   Translate as TranslateIcon,
-  AccountCircle
+  AccountCircle,
+  Person as PersonIcon,
+  ExitToApp as LogoutIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme as useAppTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { styled } from '@mui/material/styles';
 import { alpha } from '@mui/material/styles';
@@ -84,8 +88,11 @@ const Navbar: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { authState, logout, isAdmin } = useAuth();
-  const { themeMode, toggleTheme } = useTheme();
+  const { themeMode, toggleTheme } = useAppTheme();
   const { language, changeLanguage } = useLanguage();
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -175,6 +182,7 @@ const Navbar: React.FC = () => {
       <List>
         <ListItem>
           <ListItemIcon><ThemeIcon /></ListItemIcon>
+          <ListItemText primary={themeMode === 'dark' ? t('theme.dark') : t('theme.light')} />
           <Switch
             checked={themeMode === 'dark'}
             onChange={toggleTheme}
@@ -189,6 +197,34 @@ const Navbar: React.FC = () => {
           />
         </ListItem>
       </List>
+      
+      {isMobile && !authState.isAuthenticated && (
+        <>
+          <Divider />
+          <List>
+            <ListItem button onClick={() => { navigate('/login'); setDrawerOpen(false); }}>
+              <ListItemIcon><PersonIcon /></ListItemIcon>
+              <ListItemText primary={t('auth.login')} />
+            </ListItem>
+            <ListItem button onClick={() => { navigate('/register'); setDrawerOpen(false); }}>
+              <ListItemIcon><PersonIcon /></ListItemIcon>
+              <ListItemText primary={t('auth.register')} />
+            </ListItem>
+          </List>
+        </>
+      )}
+      
+      {isMobile && authState.isAuthenticated && (
+        <>
+          <Divider />
+          <List>
+            <ListItem button onClick={() => { handleLogout(); setDrawerOpen(false); }}>
+              <ListItemIcon><LogoutIcon /></ListItemIcon>
+              <ListItemText primary={t('auth.logout')} />
+            </ListItem>
+          </List>
+        </>
+      )}
     </Box>
   );
   
@@ -211,13 +247,20 @@ const Navbar: React.FC = () => {
             variant="h6"
             noWrap
             component="div"
-            sx={{ display: { xs: 'none', sm: 'block' }, cursor: 'pointer' }}
+            sx={{ 
+              display: { xs: 'block', sm: 'block' }, 
+              cursor: 'pointer',
+              fontSize: { xs: '1rem', sm: '1.25rem' }
+            }}
             onClick={() => navigate('/')}
           >
             {t('app.title')}
           </Typography>
           
-          <SearchWrapper>
+          <SearchWrapper sx={{ 
+            flexGrow: 1,
+            maxWidth: { xs: '40%', sm: '60%', md: 'auto' } 
+          }}>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
@@ -271,6 +314,19 @@ const Navbar: React.FC = () => {
               </>
             )}
           </Box>
+          
+          {isMobile && authState.isAuthenticated && (
+            <IconButton
+              size="medium"
+              edge="end"
+              color="inherit"
+              onClick={handleDrawerToggle}
+            >
+              <Avatar sx={{ width: 28, height: 28 }}>
+                {authState.user?.name?.charAt(0)}
+              </Avatar>
+            </IconButton>
+          )}
         </Toolbar>
       </AppBar>
       

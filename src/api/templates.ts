@@ -75,9 +75,63 @@ export const getTemplateQuestions = (templateId: string): Promise<Question[]> =>
 
 export const getUserTemplates = (
   pageNumber: number = 1, 
-  pageSize: number = 10
+  pageSize: number = 4
 ): Promise<{ templates: Template[], metaData: MetaData }> => {
   return api.get('/templates/my', {
+    params: { 
+      PageNumber: pageNumber, 
+      PageSize: pageSize 
+    } 
+  }).then(response => {
+    const paginationHeader = response.headers['x-pagination'];
+    const metaData = paginationHeader ? JSON.parse(paginationHeader) : {
+      CurrentPage: 1,
+      TotalPages: 1,
+      PageSize: response.data.length,
+      TotalCount: response.data.length,
+      HasPrevious: false,
+      HasNext: false
+    };
+    
+    return {
+      templates: response.data,
+      metaData
+    };
+  });
+};
+
+export const getUserPublicTemplates = (
+  pageNumber: number = 1, 
+  pageSize: number = 4
+): Promise<{ templates: Template[], metaData: MetaData }> => {
+  return api.get('/templates/my-public', {
+    params: { 
+      PageNumber: pageNumber, 
+      PageSize: pageSize 
+    } 
+  }).then(response => {
+    const paginationHeader = response.headers['x-pagination'];
+    const metaData = paginationHeader ? JSON.parse(paginationHeader) : {
+      CurrentPage: 1,
+      TotalPages: 1,
+      PageSize: response.data.length,
+      TotalCount: response.data.length,
+      HasPrevious: false,
+      HasNext: false
+    };
+    
+    return {
+      templates: response.data,
+      metaData
+    };
+  });
+};
+
+export const getUserPrivateTemplates = (
+  pageNumber: number = 1, 
+  pageSize: number = 4
+): Promise<{ templates: Template[], metaData: MetaData }> => {
+  return api.get('/templates/my-private', {
     params: { 
       PageNumber: pageNumber, 
       PageSize: pageSize 

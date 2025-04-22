@@ -18,7 +18,11 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  useMediaQuery,
+  useTheme,
+  Stack,
+  Grid
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -58,6 +62,8 @@ const TemplateDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { authState, isAdmin } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
   const [template, setTemplate] = useState<Template | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -213,33 +219,45 @@ const TemplateDetailsPage: React.FC = () => {
   
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
-      <Paper sx={{ p: 4, mb: 4 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-          <Box>
-            <Typography variant="h4" component="h1" gutterBottom>
+      <Paper sx={{ p: { xs: 2, sm: 4 }, mb: 4 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Typography variant="h4" component="h1" gutterBottom sx={{ 
+              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' } 
+            }}>
               {template.title}
             </Typography>
             
-            <Box display="flex" alignItems="center" gap={1} mb={2}>
+            <Box 
+              display="flex" 
+              alignItems="center" 
+              gap={1} 
+              mb={2}
+              sx={{ 
+                flexWrap: { xs: 'nowrap', sm: 'wrap' },
+                overflowX: { xs: 'auto', sm: 'visible' },
+                pb: { xs: 1, sm: 0 }
+              }}
+            >
               <Chip label={template.topic} color="primary" />
               
-              {template.tags.slice(0, 3).map(tag => (
+              {template.tags.slice(0, isMobile ? 2 : 3).map(tag => (
                 <Chip
                   key={tag}
                   label={tag}
                   variant="outlined"
+                  size={isMobile ? "small" : "medium"}
                   onClick={() => navigate(`/tags/${tag}/templates`)}
                 />
               ))}
               
-              {template.tags.length > 3 && (
-                <Tooltip title={template.tags.slice(3).join(', ')}>
+              {template.tags.length > (isMobile ? 2 : 3) && (
+                <Tooltip title={template.tags.slice(isMobile ? 2 : 3).join(', ')}>
                   <Chip
-                    label={`+${template.tags.length - 3}`}
+                    label={`+${template.tags.length - (isMobile ? 2 : 3)}`}
                     variant="outlined"
                     color="default"
-                    onClick={() => {
-                    }}
+                    size={isMobile ? "small" : "medium"}
                   />
                 </Tooltip>
               )}
@@ -248,13 +266,20 @@ const TemplateDetailsPage: React.FC = () => {
                 label={template.isPublic ? t('templates.public') : t('templates.private')}
                 color={template.isPublic ? 'success' : 'default'}
                 variant="outlined"
+                size={isMobile ? "small" : "medium"}
               />
             </Box>
             
-            <Box display="flex" alignItems="center" gap={2} mb={3}>
+            <Box 
+              display="flex" 
+              alignItems="center" 
+              gap={2} 
+              mb={3}
+              sx={{ flexWrap: { xs: 'wrap', sm: 'nowrap' }, gap: { xs: 1, sm: 2 } }}
+            >
               <LikeButton 
                 templateId={id!} 
-                size="medium"
+                size={isMobile ? "small" : "medium"}
               />
               
               <Box display="flex" alignItems="center" gap={0.5}>
@@ -273,41 +298,51 @@ const TemplateDetailsPage: React.FC = () => {
                 {dayjs(template.createdAt).format('DD.MM.YYYY')}
               </Typography>
             </Box>
-          </Box>
+          </Grid>
           
-          <Box>
-            {canEditTemplate() && (
-              <>
-                <Button
-                  variant="outlined"
-                  startIcon={<EditIcon />}
-                  onClick={handleEditTemplate}
-                  sx={{ mr: 1 }}
-                >
-                  {t('common.edit')}
-                </Button>
-                
-                <Button
-                  variant="outlined"
-                  color="error"
-                  startIcon={<DeleteIcon />}
-                  onClick={() => setDeleteDialogOpen(true)}
-                >
-                  {t('common.delete')}
-                </Button>
-              </>
-            )}
-            
-            <Button
-              variant="contained"
-              startIcon={<AssignmentIcon />}
-              onClick={handleSubmitForm}
-              sx={{ ml: 1 }}
+          <Grid item xs={12}>
+            <Stack 
+              direction={isMobile ? "column" : "row"} 
+              spacing={1}
+              sx={{ mb: 2 }}
             >
-              {t('forms.submit')}
-            </Button>
-          </Box>
-        </Box>
+              {canEditTemplate() && (
+                <>
+                  <Button
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    onClick={handleEditTemplate}
+                    fullWidth={isMobile}
+                    size={isMobile ? "small" : "medium"}
+                  >
+                    {t('common.edit')}
+                  </Button>
+                  
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={<DeleteIcon />}
+                    onClick={() => setDeleteDialogOpen(true)}
+                    fullWidth={isMobile}
+                    size={isMobile ? "small" : "medium"}
+                  >
+                    {t('common.delete')}
+                  </Button>
+                </>
+              )}
+              
+              <Button
+                variant="contained"
+                startIcon={<AssignmentIcon />}
+                onClick={handleSubmitForm}
+                fullWidth={isMobile}
+                size={isMobile ? "small" : "medium"}
+              >
+                {t('forms.submit')}
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
         
         <Divider sx={{ my: 2 }} />
         
@@ -344,7 +379,7 @@ const TemplateDetailsPage: React.FC = () => {
           {canEditTemplate() && <Tab label={t('forms.title')} />}
         </Tabs>
         
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: { xs: 2, sm: 3 } }}>
           <TabPanel value={tabValue} index={0}>
             {questions.length === 0 ? (
               <Typography color="text.secondary" align="center">
@@ -353,8 +388,8 @@ const TemplateDetailsPage: React.FC = () => {
             ) : (
               <Box>
                 {questions.map((question) => (
-                  <Paper key={question.id} sx={{ p: 2, mb: 2 }}>
-                    <Typography variant="h6">
+                  <Paper key={question.id} sx={{ p: { xs: 1.5, sm: 2 }, mb: 2 }}>
+                    <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                       {question.orderIndex + 1}. {question.title}
                     </Typography>
                     
@@ -364,7 +399,17 @@ const TemplateDetailsPage: React.FC = () => {
                       </Typography>
                     )}
                     
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mt={1}>
+                    <Box 
+                      display="flex" 
+                      justifyContent="space-between" 
+                      alignItems="center" 
+                      mt={1}
+                      sx={{ 
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        alignItems: { xs: 'flex-start', sm: 'center' },
+                        gap: { xs: 1, sm: 0 }
+                      }}
+                    >
                       <Chip
                         label={t(`questions.types.${QuestionType[question.type].toLowerCase()}`)}
                         size="small"
@@ -409,7 +454,7 @@ const TemplateDetailsPage: React.FC = () => {
         </Box>
       </Paper>
       
-      <Paper sx={{ p: 3 }}>
+      <Paper sx={{ p: { xs: 2, sm: 3 } }}>
         <CommentSection templateId={id!} />
       </Paper>
       
