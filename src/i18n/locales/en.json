@@ -221,5 +221,9 @@
       "mostCommonValues": "Most common values",
       "occurrences": "Occurrences",
       "noData": "No data"
+    },
+    "theme" : {
+      "light": "Light",
+      "dark": "Dark"
     }
   }

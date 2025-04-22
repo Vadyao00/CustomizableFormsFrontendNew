@@ -221,5 +221,9 @@
       "mostCommonValues": "Частые ответы",
       "occurrences": "Количество",
       "noData": "Нет данных"
+    },
+    "theme" : {
+      "light": "Светлая",
+      "dark": "Темная"
     }
   }
