@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Button, Divider } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-// Import from hello-pangea/dnd instead of react-beautiful-dnd
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useTranslation } from 'react-i18next';
 import { Question, QuestionType, QuestionForCreationDto, QuestionForUpdateDto } from '../../types';
@@ -31,10 +30,8 @@ const QuestionList: React.FC<QuestionListProps> = ({
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   const [localQuestions, setLocalQuestions] = useState<Question[]>([]);
   
-  // Track if drag operation is in progress to prevent state conflicts
   const isDragging = useRef(false);
   
-  // Update local questions when prop changes, but only if not mid-drag
   useEffect(() => {
     if (!isDragging.current) {
       setLocalQuestions(questions);
@@ -64,37 +61,28 @@ const QuestionList: React.FC<QuestionListProps> = ({
     setEditingQuestionId(null);
   };
 
-  // Start tracking drag operation
   const handleDragStart = () => {
     isDragging.current = true;
   };
 
-  // Optimized drag end handler
   const handleDragEnd = (result: any) => {
-    // Set dragging to false when operation completes
     isDragging.current = false;
     
-    // Return early if no valid destination
     if (!result.destination) return;
     
-    // Return early if dropped in the same position
     if (result.destination.index === result.source.index) return;
     
-    // Create new array with updated order
     const reorderedQuestions = Array.from(localQuestions);
     const [movedItem] = reorderedQuestions.splice(result.source.index, 1);
     reorderedQuestions.splice(result.destination.index, 0, movedItem);
     
-    // Update orderIndex values to match new positions
     const updatedQuestions = reorderedQuestions.map((question, index) => ({
       ...question,
       orderIndex: index
     }));
     
-    // Update local state first for immediate UI feedback
     setLocalQuestions(updatedQuestions);
     
-    // Then notify parent component
     const questionIds = updatedQuestions.map(q => q.id);
     onReorderQuestions(questionIds);
   };
@@ -103,12 +91,10 @@ const QuestionList: React.FC<QuestionListProps> = ({
     return localQuestions.find(q => q.id === editingQuestionId) || null;
   };
 
-  // Ensure consistent string IDs
   const getStableId = (id: any): string => {
     return String(id).trim();
   };
 
-  // Sort questions by orderIndex for display
   const sortedQuestions = [...localQuestions].sort((a, b) => a.orderIndex - b.orderIndex);
 
   return (
