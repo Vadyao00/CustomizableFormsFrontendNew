@@ -25,6 +25,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
 import * as signalR from './api/signalR';
+import SalesforceProfilePage from './pages/SalesforceProfilePage';
 
 const queryClient = new QueryClient();
 
@@ -117,6 +118,15 @@ const App: React.FC = () => {
                       <AdminRoute>
                         <AdminPage />
                       </AdminRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/profile/salesforce"
+                    element={
+                      <ProtectedRoute>
+                        <SalesforceProfilePage/>
+                      </ProtectedRoute>
                     }
                   />
                   

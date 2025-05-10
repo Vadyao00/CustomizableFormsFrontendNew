@@ -32,7 +32,8 @@ import {
   Translate as TranslateIcon,
   AccountCircle,
   Person as PersonIcon,
-  ExitToApp as LogoutIcon
+  ExitToApp as LogoutIcon,
+  Cloud as SalesforceIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -165,6 +166,10 @@ const Navbar: React.FC = () => {
             <ListItem button onClick={() => { navigate('/forms/my'); setDrawerOpen(false); }}>
               <ListItemIcon><AssignmentIcon /></ListItemIcon>
               <ListItemText primary={t('nav.myForms')} />
+            </ListItem>
+            <ListItem button onClick={() => { navigate('/profile/salesforce'); setDrawerOpen(false); }}>
+              <ListItemIcon><SalesforceIcon /></ListItemIcon>
+              <ListItemText primary={t('nav.salesforceProfile')} />
             </ListItem>
           </>
         )}

@@ -1,12 +1,8 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import { AuthTokens } from './auth';
 
-const API_URL = 'https://customizableforms.runasp.net/api';
-//const API_URL = 'https://localhost:7164/api';
-
-interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-}
+//const API_URL = 'https://customizableforms.runasp.net/api';
+const API_URL = 'https://localhost:7164/api';
 
 interface QueuePromise {
   resolve: (value: string | null) => void;

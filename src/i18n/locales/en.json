@@ -8,7 +8,8 @@
       "templates": "Templates",
       "myTemplates": "My Templates",
       "myForms": "My Forms",
-      "admin": "Admin"
+      "admin": "Admin",
+      "salesforceProfile": "Profile Salesforce"
     },
     "auth": {
       "login": "Login",
@@ -225,5 +226,29 @@
     "theme" : {
       "light": "Light",
       "dark": "Dark"
-    }
+    },
+    "salesforce": {
+    "profileCreation": "Creation Salesforce profile",
+    "formDescription": "Fill this form for create profile Salesforce CRM. This information will be used for creation your account.",
+    "companyInfo": "Company information",
+    "contactInfo": "Contact info",
+    "companyName": "Company name",
+    "website": "Website",
+    "industry": "Industry",
+    "description": "Description",
+    "companyPhone": "Company phone",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "phone": "Phone",
+    "title": "Title",
+    "createProfile": "Create profile",
+    "updateProfile": "Update profile",
+    "profileCreated": "Salesforce profile successfully created!",
+    "errorLoading": "Error loading your profile",
+    "errorSaving": "Error saving your profile",
+    "profileStatus": "Profile status",
+    "profileExists": "Profile already exists",
+    "profileUpdated": "Profile updated"
+  }
   }

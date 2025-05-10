@@ -8,7 +8,8 @@
       "templates": "Шаблоны",
       "myTemplates": "Мои Шаблоны",
       "myForms": "Мои Формы",
-      "admin": "Администрирование"
+      "admin": "Администрирование",
+      "salesforceProfile": "Профиль Salesforce"
     },
     "auth": {
       "login": "Вход",
@@ -225,5 +226,29 @@
     "theme" : {
       "light": "Светлая",
       "dark": "Темная"
-    }
+    },
+    "salesforce": {
+    "profileCreation": "Создание профиля Salesforce",
+    "formDescription": "Заполните форму для создания профиля в Salesforce CRM. Эта информация будет использована для создания аккаунта компании и вашего контакта.",
+    "companyInfo": "Информация о компании",
+    "contactInfo": "Контактная информация",
+    "companyName": "Название компании",
+    "website": "Веб-сайт",
+    "industry": "Отрасль",
+    "description": "Описание",
+    "companyPhone": "Телефон компании",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "email": "Email",
+    "phone": "Телефон",
+    "title": "Должность",
+    "createProfile": "Создать профиль",
+    "updateProfile": "Обновить профиль",
+    "profileCreated": "Профиль в Salesforce успешно создан!",
+    "errorLoading": "Ошибка при загрузке вашего профиля",
+    "errorSaving": "Ошибка при сохранении вашего профиля",
+    "profileStatus": "Статус профиля",
+    "profileExists": "Профиль уже создан",
+    "profileUpdated": "Профиль успешно обновлен"
+  }
   }

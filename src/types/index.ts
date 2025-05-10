@@ -200,3 +200,24 @@ export interface UserForRegistrationDto {
     HasPrevious: boolean;
     HasNext: boolean;
   }
+
+  export interface SalesforceProfileFormDto {
+    companyName: string;
+    website?: string;
+    industry?: string;
+    description?: string;
+    companyPhone?: string;
+    
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    title?: string;
+  }
+  
+  export interface SalesforceProfileInfo {
+    exists: boolean;
+    accountId?: string;
+    contactId?: string;
+    createdAt?: string;
+  }
