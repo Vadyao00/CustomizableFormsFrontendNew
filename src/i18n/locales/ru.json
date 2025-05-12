@@ -250,5 +250,21 @@
     "profileStatus": "Статус профиля",
     "profileExists": "Профиль уже создан",
     "profileUpdated": "Профиль успешно обновлен"
+  },
+  "support": {
+    "createTicket": "Создать письмо",
+    "summary": "Информация",
+    "priority": "Приоритет",
+    "priority.high": "Высокий",
+    "priority.average": "Средний",
+    "priority.low": "Низкий",
+    "submit": "Отправить",
+    "ticketCreated": "Ваш запрос успешно отправлен!",
+    "errorCreating": "Ошибка отправки запроса. Попробуйте еще раз.",
+    "summaryRequired": "Информация обязательна",
+    "additionalInfo": "Дополнительная информация",
+    "reportedBy": "Отправлено",
+    "template": "Шаблон",
+    "pageLink": "Страница"
   }
-  }
+}

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { CssBaseline } from '@mui/material';
+import { CssBaseline, Box } from '@mui/material';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -26,6 +26,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
 import * as signalR from './api/signalR';
 import SalesforceProfilePage from './pages/SalesforceProfilePage';
+import Footer from './components/layout/Footer';
 
 const queryClient = new QueryClient();
 
@@ -45,93 +46,102 @@ const App: React.FC = () => {
             <ThemeProvider>
               <LanguageProvider>
                 <CssBaseline />
-                <Navbar />
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/templates" element={<TemplatesPage />} />
-                  <Route path="/templates/:id" element={<TemplateDetailsPage />} />
-                  <Route path="/search" element={<SearchPage />} />
-                  <Route path="/tags/:tagName/templates" element={<TagTemplatesPage />} />
-                  
-                  <Route
-                    path="/templates/create"
-                    element={
-                      <ProtectedRoute>
-                        <TemplateCreatePage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/templates/:id/edit"
-                    element={
-                      <ProtectedRoute>
-                        <TemplateEditPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/templates/my"
-                    element={
-                      <ProtectedRoute>
-                        <MyTemplatesPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/forms/my"
-                    element={
-                      <ProtectedRoute>
-                        <MyFormsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/templates/:id/submit"
-                    element={
-                      <ProtectedRoute>
-                        <FormSubmitPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/forms/:id"
-                    element={
-                      <ProtectedRoute>
-                        <FormDetailsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/forms/:id/edit"
-                    element={
-                      <ProtectedRoute>
-                        <FormEditPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  
-                  <Route
-                    path="/admin/*"
-                    element={
-                      <AdminRoute>
-                        <AdminPage />
-                      </AdminRoute>
-                    }
-                  />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: '100vh',
+                  }}
+                >
+                  <Navbar />
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/templates" element={<TemplatesPage />} />
+                    <Route path="/templates/:id" element={<TemplateDetailsPage />} />
+                    <Route path="/search" element={<SearchPage />} />
+                    <Route path="/tags/:tagName/templates" element={<TagTemplatesPage />} />
+                    
+                    <Route
+                      path="/templates/create"
+                      element={
+                        <ProtectedRoute>
+                          <TemplateCreatePage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/templates/:id/edit"
+                      element={
+                        <ProtectedRoute>
+                          <TemplateEditPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/templates/my"
+                      element={
+                        <ProtectedRoute>
+                          <MyTemplatesPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/forms/my"
+                      element={
+                        <ProtectedRoute>
+                          <MyFormsPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/templates/:id/submit"
+                      element={
+                        <ProtectedRoute>
+                          <FormSubmitPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/forms/:id"
+                      element={
+                        <ProtectedRoute>
+                          <FormDetailsPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/forms/:id/edit"
+                      element={
+                        <ProtectedRoute>
+                          <FormEditPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    
+                    <Route
+                      path="/admin/*"
+                      element={
+                        <AdminRoute>
+                          <AdminPage />
+                        </AdminRoute>
+                      }
+                    />
 
-                  <Route
-                    path="/profile/salesforce"
-                    element={
-                      <ProtectedRoute>
-                        <SalesforceProfilePage/>
-                      </ProtectedRoute>
-                    }
-                  />
-                  
-                  <Route path="*" element={<NotFoundPage />} />
-                </Routes>
+                    <Route
+                      path="/profile/salesforce"
+                      element={
+                        <ProtectedRoute>
+                          <SalesforceProfilePage/>
+                        </ProtectedRoute>
+                      }
+                    />
+                    
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Routes>
+                  <Footer />
+                </Box>
               </LanguageProvider>
             </ThemeProvider>
         </AuthProvider>

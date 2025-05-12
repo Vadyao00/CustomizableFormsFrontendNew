@@ -44,6 +44,9 @@ import { styled } from '@mui/material/styles';
 import { alpha } from '@mui/material/styles';
 import { updateUser } from '../../api/admin';
 import { UserPreferencesDto } from '../../types';
+import HelpIcon from '@mui/icons-material/Help';
+import HelpDialog from '../support/HelpDialog';
+import { useLocation } from 'react-router-dom';
 
 const SearchWrapper = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -91,7 +94,9 @@ const Navbar: React.FC = () => {
   const { authState, logout, isAdmin } = useAuth();
   const { themeMode, toggleTheme } = useAppTheme();
   const { language, changeLanguage } = useLanguage();
-  
+  const location = useLocation();
+  const [helpDialogOpen, setHelpDialogOpen] = useState(false);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
@@ -278,6 +283,15 @@ const Navbar: React.FC = () => {
             />
           </SearchWrapper>
           
+          <IconButton 
+            color="inherit" 
+            onClick={() => setHelpDialogOpen(true)} 
+            sx={{ ml: 1 }}
+            aria-label="help"
+          >
+            <HelpIcon />
+          </IconButton>
+
           <Box sx={{ flexGrow: 1 }} />
           
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
@@ -342,6 +356,12 @@ const Navbar: React.FC = () => {
       >
         {drawer}
       </Drawer>
+
+      <HelpDialog
+        open={helpDialogOpen}
+        onClose={() => setHelpDialogOpen(false)}
+        currentPath={location.pathname}
+      />
     </>
   );
 };

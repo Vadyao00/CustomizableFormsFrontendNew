@@ -221,3 +221,9 @@ export interface UserForRegistrationDto {
     contactId?: string;
     createdAt?: string;
   }
+
+  export interface SupportTicketDto {
+  summary: string;
+  priority: string;
+  link: string;
+}

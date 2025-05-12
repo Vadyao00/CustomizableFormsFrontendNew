@@ -250,5 +250,21 @@
     "profileStatus": "Profile status",
     "profileExists": "Profile already exists",
     "profileUpdated": "Profile updated"
+  },
+  "support": {
+    "createTicket": "Create support ticket",
+    "summary": "Summary",
+    "priority": "Priority",
+    "priority.high": "High",
+    "priority.average": "Average",
+    "priority.low": "Low",
+    "submit": "Submit ticket",
+    "ticketCreated": "Your support ticket has been created successfully!",
+    "errorCreating": "Error creating support ticket. Please try again.",
+    "summaryRequired": "Summary is required",
+    "additionalInfo": "Additional information",
+    "reportedBy": "Reported by",
+    "template": "Template",
+    "pageLink": "Page link"
   }
-  }
+}
